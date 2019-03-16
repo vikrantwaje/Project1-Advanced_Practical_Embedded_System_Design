@@ -17,33 +17,29 @@ typedef enum{
 }request_cmd_t;
 
 
-typedef enum{
-	FAULT,EM,CONVERSION_RATE,SD_MODE,RESOLUTION,ALL
-}reg_read_cmd_t;
 
 #define LIGHT_SENSOR_I2C_ADDRESS (0x39)
-#define ID_REG			(0x0A)
+#define CONTROL_REG	 	(0x00)
 #define TIMING_REG		(0x01)
-/*#define CONFIGURATION_REG	 (0x01)
-#define TLOW_REG		(0x02)
-#define THIGH_REG		(0x03)
+#define THRESHLOWLOW_REG	(0x02)
+#define THRESHLOWHIGH_REG	(0x03)
+#define THRESHHIGHLOW_REG	(0x04)
+#define THRESHHIGHHIGH_REG	(0x05)
+#define INTERRUPT_REG		(0x06)
+#define CRC			(0x08)
+#define ID_REG			(0x0A)
+#define DATA0LOW_REG		(0x0C)
+#define DATA0HIGH_REG		(0x0D)
+#define DATA1LOW_REG		(0x0E)
+#define DATA1HIGH_REG		(0x0F)
 
-#define CONVERSION_RATE_0_25	((0x00)<<6U)
-#define CONVERSION_RATE_1	((0x01)<<6U)
-#define CONVERSION_RATE_4	((0x02)<<6U)
-#define CONVERSION_RATE_8	((0x03)<<6U)
+#define	INTEGRATION_13_7	((0x00))
+#define INTEGRATION_101		((0x01))
+#define INTEGRATION_402		((0x02))
 
-#define SHUTDOWN_ON		((0x01)<<8U)
-#define SHUTDOWN_OFF		((0x00)<<8U)
+#define LOW_GAIN		((0x00)<<4U)
+#define HIGH_GAIN		((0x01)<<4U)
 
-#define EM_ON			((0x01)<<4U)
-#define EM_OFF			((0x00)<<4U)
-
-#define FAULT_1			((0x00)<<11U) 
-#define FAULT_2			((0x01)<<11U)
-#define FAULT_3			((0x02)<<11U)
-#define FAULT_4			((0x03)<<11U)
-*/
 
 const char *path_name = "/dev/i2c-2";
 
@@ -106,7 +102,7 @@ light_sensor_status_t read_reg(uint8_t address, uint8_t *data){
 		perror("Read not successfull");
 		return READ_REG_FAIL;
 	}
-
+	
 
 	close(fptr);
 
@@ -114,7 +110,11 @@ light_sensor_status_t read_reg(uint8_t address, uint8_t *data){
 
 }
 
+double read_lux(){
 
+
+
+}
 
 void main(){
 
