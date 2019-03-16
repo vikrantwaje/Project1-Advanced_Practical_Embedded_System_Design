@@ -130,42 +130,44 @@ temp_sensor_status_t read_reg(uint8_t address, uint8_t *data,reg_read_cmd_t comm
 	*(data +1) = *(data +0) ^ *(data +1);
 	*(data +0) = *(data +0) ^ *(data +1);
 	if(command == SD_MODE){
-	*(data + 0) =*(data + 1);
-	*(data + 1) =0;
-}	
-else if(command == FAULT){
-	*(data + 0) = *(data + 1)>>3;
-	*(data + 1) = 0;
-}
+		*(data + 0) =*(data + 1);
+		*(data + 1) =0;
+	}	
+	else if(command == FAULT){
+		*(data + 0) = *(data + 1)>>3;
+		*(data + 1) = 0;
+	}
 
-else if(command == EM){
-	*(data + 0) = *(data +0)>>4;
-	*(data + 1) = 0;
-}
+	else if(command == EM){
+		*(data + 0) = *(data +0)>>4;
+		*(data + 1) = 0;
+	}
 
-else if(command == CONVERSION_RATE){
+	else if(command == CONVERSION_RATE){
 
-	*(data +0) = *(data + 0)>>6;
-	*(data +1) =0;
-}
-else if(command == RESOLUTION){
-	*(data + 0) = *(data + 1)>>5;
-	*(data + 1) =0;
+		*(data +0) = *(data + 0)>>6;
+		*(data +1) =0;
+	}
+	else if(command == RESOLUTION){
+		*(data + 0) = *(data + 1)>>5;
+		*(data + 1) =0;
 
-}
-else{
-	*(data +0 )= *(data +0);
-	*(data + 1) = *(data +1);
-}
+	}
+	else{
+		*(data +0 )= *(data +0);
+		*(data + 1) = *(data +1);
+	}
 	close(fptr);
+
 	return READ_REG_SUCCESS;
+
 }
 
 
 double get_temperature(request_cmd_t request){
 
 
-	double result = 0;
+	//double result = 0;
 	double multiplier =0;
 	uint8_t *data = malloc(sizeof(uint8_t) * 2);
 	if(request == REQUEST_CELSIUS){
@@ -183,24 +185,46 @@ double get_temperature(request_cmd_t request){
 
 
 	}
-	printf("%x %x",*(data + 0),*(data +1));
+	//printf("%x %x",*(data + 0),*(data +1));
 
-	int32_t temp = (((*(data + 1)<<8) |*(data +0))>>4);
-	if(temp & 0x800 !=0x800)
-		result = temp * multiplier;
-	else
-		result = -1*((~(temp) +1) * multiplier);
+	int32_t digitalTemp =0;
 
-	return result;
-
+	// Bit 0 of second byte will always be 0 in 12-bit readings and 1 in 13-bit
+	if(*(data + 0)&0x01)	// 13 bit mode
+	{
+		// Combine bytes to create a signed int
+		digitalTemp = (*(data + 1) << 5) | (*(data + 0) >> 3);
+		// Temperature data can be + or -, if it should be negative,
+		// convert 13 bit to 16 bit and use the 2s compliment.
+		if(digitalTemp > 0xFFF)
+		{
+			digitalTemp |= 0xE000;
+		}
+	}
+	else	// 12 bit mode
+	{
+		// Combine bytes to create a signed int 
+		digitalTemp = (*(data + 1) << 4) | (*(data + 0) >> 4);
+		// Temperature data can be + or -, if it should be negative,
+		// convert 12 bit to 16 bit and use the 2s compliment.
+		if(digitalTemp > 0x7FF)
+		{
+			digitalTemp |= 0xF000;
+		}
+	}
+	// Convert digital reading to analog temperature (1-bit is equal to 0.0625 C)
 
 	free(data);
+	return (digitalTemp*multiplier);
+
+
+	//	free(data);
 }
 
 void main(){
 
 	int status = 0;
-//	uint8_t *send_data = malloc(sizeof(uint8_t)*10);
+	//	uint8_t *send_data = malloc(sizeof(uint8_t)*10);
 	uint8_t *receive_data = malloc(sizeof(uint8_t) *10);
 
 	/*	*(send_data + 0) =0x10;
@@ -218,6 +242,7 @@ void main(){
 
 
 	  }*/
+	while(1)
 	printf("\n\r%lf",get_temperature(REQUEST_CELSIUS));
 	//printf("%x %x",*(receive_data + 0),*(receive_data +1));
 	free(receive_data);
