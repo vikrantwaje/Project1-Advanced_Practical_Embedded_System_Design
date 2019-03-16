@@ -149,6 +149,8 @@ void *socket_thread(void)
 	//			socket_flag = 0;
 		}
 
+		socket_flag = 1;
+		
 		while(socket_flag == 1)
 		{
 			memset(str,0,sizeof(str));
