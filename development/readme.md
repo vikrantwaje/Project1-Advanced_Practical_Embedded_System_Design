@@ -4,4 +4,4 @@ Client Side: Set IP of BBG (find ip using 'ifconfig') in the source code and com
 
 Server Side: Compile using 'arm-linux-gcc' flag to be executed on the 'TARGET' machine
 
-Makefile: Choose appropriate 'PLATFORM'
+Makefile: Choose appropriate 'PLATFORM'	
