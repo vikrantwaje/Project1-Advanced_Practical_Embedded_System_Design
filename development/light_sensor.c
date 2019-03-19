@@ -1,15 +1,32 @@
+/********************************************************************************************
+*					FILENAME: light_sensor.c
+**********************************************************************************************/
+/*
+ * Author: Tanmay Chaturvedi, Vikrant Waje
+ * Date Created: March 16, 2019
+ * Course: Advanced Embedded Software Development
+ * Project: 1
 
-#include<stdio.h>
-#include<unistd.h>
-#include<fcntl.h>
-#include<sys/ioctl.h>
-#include<linux/i2c-dev.h>
-#include<stdint.h>
-#include<stdlib.h>
-#include<math.h>
-#include "light_sensor_thread"
+ * Reference[1]: http://www.it.uom.gr/teaching/distrubutedSite/dsIdaLiu/labs/lab2_1/sockets.html
+ * Reference[2]: Based on code from https://riptutorial.com/posix/example/16306/posix-timer-with-sigev-thread-notification
+ * 
+ * 
+ * */
+/****************************************************************************************
+*					HEADER FILE SECTION
+*****************************************************************************************/
+#include "light_sensor_thread.h"
 
-const char *path_name = "/dev/i2c-2";
+/***********************************************************************************************  * @brief write register in light sensor 
+ *
+ *Responsible for writing into  register of light sensor
+ *
+ * @param address: address of  register  of light sensor
+ * @param data: data to be written into register of light sensor
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
+
 
 light_sensor_status_t write_reg(uint8_t address, uint8_t data){
 	int status =0;
@@ -38,6 +55,16 @@ light_sensor_status_t write_reg(uint8_t address, uint8_t data){
 	free(buffer);
 	return WRITE_REG_SUCCESS;
 }
+
+/***********************************************************************************************  * @brief Read register in light sensor 
+ *
+ *Responsible for reading from register of light sensor
+ *
+ * @param address: address of  register  of light sensor
+ * @param data: data to be read from register of light sensor
+ * @param command: Bits to be read from particular register from light sensor
+ * @return status of I2C operation
+ *********************************************************************************************/
 
 
 light_sensor_status_t read_reg(uint8_t address, uint8_t *data,read_cmd_t command){
@@ -82,6 +109,16 @@ light_sensor_status_t read_reg(uint8_t address, uint8_t *data,read_cmd_t command
 	return READ_REG_SUCCESS;
 
 }
+/***********************************************************************************************  * @brief Read two register in light sensor 
+ *
+ *Responsible for reading from two  register of light sensor
+ *
+ * @param address: address of  register  of light sensor
+ * @param data: data to be read from register of light sensor
+ * @param command: Bits to be read from particular register from light sensor
+ * @return status of I2C operation
+ *********************************************************************************************/
+
 
 light_sensor_status_t read_two_reg(uint8_t address, uint8_t *data){
 
@@ -115,6 +152,14 @@ light_sensor_status_t read_two_reg(uint8_t address, uint8_t *data){
 	close(fptr);
 	return READ_REG_SUCCESS;
 }
+
+/***********************************************************************************************  * @brief Read lux values 
+ *
+ *Responsible for reading lux value from light sensor
+ *
+ * @param null
+ * @return double: Returns the lux values from light sensor
+ *********************************************************************************************/
 
 
 double read_lux(){

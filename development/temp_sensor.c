@@ -1,16 +1,36 @@
+/********************************************************************************************
+*					FILENAME:temp_sensor.c
+**********************************************************************************************/
+/*
+ * Author: Tanmay Chaturvedi, Vikrant Waje
+ * Date Created: March 16, 2019
+ * Course: Advanced Embedded Software Development
+ * Project: 1
 
-#include<stdio.h>
-#include<unistd.h>
-#include<fcntl.h>
-#include<sys/ioctl.h>
-#include<linux/i2c-dev.h>
-#include<stdint.h>
-#include<stdlib.h>
+ * Reference[1]: http://www.it.uom.gr/teaching/distrubutedSite/dsIdaLiu/labs/lab2_1/sockets.html
+ * Reference[2]: Based on code from https://riptutorial.com/posix/example/16306/posix-timer-with-sigev-thread-notification
+ * 
+ * 
+ * */
+/****************************************************************************************
+*					HEADER FILE SECTION
+*****************************************************************************************/
 #include "temp_sensor.h"
 
 
-const char *path_name = "/dev/i2c-2";
+/**********************************************************************************
+*				FUNCTION DEFINITION
+***************************************************************************************/
 
+/***********************************************************************************************
+ * @brief write pointer register
+ *
+ *Responsible for writing into pointer registerof temperature sensor TMP102
+ *
+ * @param address: address of pointer register TMP102
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
 
 temp_sensor_status_t write_ptr_reg(uint8_t address){
 	int status = 0;
@@ -34,6 +54,15 @@ temp_sensor_status_t write_ptr_reg(uint8_t address){
 	return WRITE_REG_SUCCESS;
 }
 
+/***********************************************************************************************  * @brief write register in temperature register
+ *
+ *Responsible for writing into  register of temperature sensor TMP102
+ *
+ * @param address: address of  register  of TMP102
+ * @param data: data to be written into register of TMP102
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
 
 temp_sensor_status_t write_reg(uint8_t address, uint16_t data){
 	int status =0;
@@ -63,6 +92,17 @@ temp_sensor_status_t write_reg(uint8_t address, uint16_t data){
 	free(buffer);
 	return WRITE_REG_SUCCESS;
 }
+
+/***********************************************************************************************  * @brief Read register in temperature register
+ *
+ *Responsible for reading from  register of temperature sensor TMP102
+ *
+ * @param address: address of  register  of TMP102
+ * @param data: data to be read from  register of TMP102
+ * @param command: register bits which are to be read
+ * @return status of I2C operation
+ *********************************************************************************************/
+
 
 
 temp_sensor_status_t read_reg(uint8_t address, uint8_t *data,reg_read_cmd_t command){
@@ -128,6 +168,13 @@ temp_sensor_status_t read_reg(uint8_t address, uint8_t *data,reg_read_cmd_t comm
 	return READ_REG_SUCCESS;
 
 }
+/***********************************************************************************************  * @brief Get temperature
+ *
+ * Read the value from temperature register
+ *
+ * @param request: Temperature value in kelvin, celsius and farhenheit to be returned
+ * @return double: Value of converted temperature
+ *********************************************************************************************/
 
 
 double get_temperature(request_cmd_t request){
