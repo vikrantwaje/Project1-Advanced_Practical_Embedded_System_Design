@@ -53,9 +53,9 @@ struct sockaddr_in server_addr;
 * 					FUNCTION PROTOTYPES
 *****************************************************************************************/
 /*******************************************************************************************
- * @brief Socket Connection Routines
+ * @brief Socket Listening Routines
  *
- * Call the socket(), bind(), listen() and accept() and returns 1 on successful connection
+ * Call the listen() and accept() and returns 1 on successful connection
  * with an external client
  
  * @param null
@@ -64,6 +64,29 @@ struct sockaddr_in server_addr;
  ********************************************************************************************/
 int socket_connect(void);
 
+
+/*******************************************************************************************
+ * @brief Socket Setup Routines
+ *
+ * Call the socket(), bind() and returns 1 on successful setup
+ 
+ * @param null
+ *
+ * @return 0 if error, 1 if success
+ ********************************************************************************************/
+int socket_setup(void);
+
+
+/*******************************************************************************************
+ * @brief Communicate with external client
+ *
+ * After connecting with external client, receives command from client and call respective
+ * function.
+
+ * @param null
+ *
+ * @return 0 if error, 1 if success
+ ********************************************************************************************/
 int server_establish(void);
 
 #endif //SRC_SERVER_H_
