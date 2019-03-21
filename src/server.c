@@ -14,6 +14,16 @@
 
 #include"server.h"
 
+/*******************************************************************************************
+ * @brief Communicate with external client
+ *
+ * After connecting with external client, receives command from client and call respective
+ * function.
+
+ * @param null
+ *
+ * @return 0 if error, 1 if success
+ ********************************************************************************************/
 int server_establish()
 {
 	//set_sig_handler();
@@ -23,71 +33,78 @@ int server_establish()
 	char str[30];
 	int send_data_len;
 	
-
-	int socket_flag = 0;	/*Not Connected*/
-
-	while( socket_flag == 0 )
+	if( socket_setup() )
 	{
-		if( socket_connect() )
+
+		int socket_flag = 0;	/*Not Connected*/
+
+		while( socket_flag == 0 )
 		{
-			socket_flag = 1;
-
-			while(socket_flag == 1)
+			if( socket_connect() )
 			{
-				memset(str,0,sizeof(str));
-				if((recv_stat = recv(sock_stat, str,sizeof(str),0) < 0))
+				socket_flag = 1;
+
+				while(socket_flag == 1)
 				{
-					perror("read error");
-					break;
+					memset(str,0,sizeof(str));
+					if((recv_stat = recv(sock_stat, str,sizeof(str),0) < 0))
+					{
+						perror("read error");
+						break;
+					}
+
+					RxBuf[0] = str;
+
+					if(strcmp(RxBuf[0],"request_temp_data") == 0)
+					{
+						printf("temp func received \n");
+						/*call temp_read()*/
+					}
+
+					else if(strcmp(RxBuf[0],"request_light_val") == 0)
+					{
+						printf("Light val func received \n");
+						/*call light_val()*/
+					}
+
+					else if(strcmp(RxBuf[0],"request_sys_state") == 0)
+					{
+						printf("System State func received \n");
+						/*System State func()*/
+					}
+
+					else if(strcmp(RxBuf[0],"close") == 0)
+					{
+						printf("Closing Socket \n");
+						socket_flag = 0;
+						close(socket_fd);
+						break;
+					}
+
+					else 
+						printf("Unrecognized command. Please try again!\n");
 				}
-
-				RxBuf[0] = str;
-
-				if(strcmp(RxBuf[0],"request_temp_data") == 0)
-				{
-					printf("temp func received \n");
-					/*call temp_read()*/
-				}
-
-				else if(strcmp(RxBuf[0],"request_light_val") == 0)
-				{
-					printf("Light val func received \n");
-					/*call light_val()*/
-				}
-
-				else if(strcmp(RxBuf[0],"request_sys_state") == 0)
-				{
-					printf("System State func received \n");
-					/*System State func()*/
-				}
-
-				else if(strcmp(RxBuf[0],"close") == 0)
-				{
-					printf("Closing Socket \n");
-					socket_flag = 0;
-					close(socket_fd);
-					break;
-				}
-
-				else 
-					printf("Unrecognized command. Please try again!\n");
 			}
+			else return 0;
 		}
-	}
 
+	}
+	else 
+		return 0;
 }
 
+
+
 /*******************************************************************************************
- * @brief Socket Connection Routines
+ * @brief Socket Setup Routines
  *
- * Call the socket(), bind(), listen() and accept() and returns 1 on successful connection
- * with an external client
+ * Call the socket(), bind() and returns 1 on successful setup
  
  * @param null
  *
  * @return 0 if error, 1 if success
  ********************************************************************************************/
-int socket_connect(void)
+int socket_setup()
 {
 		socket_fd = socket(AF_INET, SOCK_STREAM,0);
 
@@ -107,6 +124,21 @@ int socket_connect(void)
 			perror("Server: bind()");
 			return 0;
 		}
+}
+
+
+/*******************************************************************************************
+ * @brief Socket Listening Routines
+ *
+ * Call the listen() and accept() and returns 1 on successful connection
+ * with an external client
+ 
+ * @param null
+ *
+ * @return 0 if error, 1 if success
+ ********************************************************************************************/
+int socket_connect(void)
+{
 
 		listen(socket_fd, 5);
 
@@ -120,6 +152,7 @@ int socket_connect(void)
 
 	return 1;
 }
+
 
 
 /*Below signals not called now*/
