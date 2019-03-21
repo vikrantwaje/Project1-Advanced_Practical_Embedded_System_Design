@@ -41,6 +41,7 @@
  ********************************************************************************************/
 void *socket_thread( void* arg){
 //	printf("\nHi from socket thread");
+	server_establish();
 }
 
 
