@@ -9,31 +9,13 @@
  * Reference[2]: https://www.youtube.com/watch?v=pFLQmnmDOo
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <mqueue.h>
-#include <time.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <sys/time.h>
-#include <netdb.h>
-#include <arpa/inet.h>
 
-#define	LOG_FILE_NAME	"socketlog.txt"
-
-void set_sig_handler(void);
-long getMicrotime();
+#include"Client.h"
 
 
-int sig_flag = 0;
-int socket_fd;
+//void set_sig_handler(void);
+//long getMicrotime();
+
 
 int main()
 {

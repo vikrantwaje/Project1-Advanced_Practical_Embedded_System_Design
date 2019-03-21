@@ -1,7 +1,7 @@
-#ifndef SRC_SOCKET_H_
-#define	SRC_SOCKET_H_
+#ifndef SRC_CLIENT_H_
+#define	SRC_CLIENT_H_
 /********************************************************************************************
-*					FILENAME: socket.h
+*					FILENAME: Client.h
 **********************************************************************************************/
 /*
  * Author: Tanmay Chaturvedi, Vikrant Waje
@@ -32,37 +32,26 @@
 #include <netinet/in.h>
 #include <sys/time.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 
 /***************************************************************************************
 *					MACROS AND ENUMS
 ****************************************************************************************/
-#define	PORT_NUM	(7000)
 #define	LOG_FILE_NAME	"socketlog.txt"
 
 /****************************************************************************************
 * 					GLOBAL VARIABLES
 *****************************************************************************************/
-char *RxBuf[10] = {0};
-int socket_fd;
-int check_stat;
+
 int sig_flag = 0;
-int sock_stat;
-struct sockaddr_in server_addr;
+int socket_fd;
+
 
 /****************************************************************************************
 * 					FUNCTION PROTOTYPES
 *****************************************************************************************/
-/*******************************************************************************************
- * @brief Socket Connection Routines
- *
- * Call the socket(), bind(), listen() and accept() and returns 1 on successful connection
- * with an external client
- 
- * @param null
- *
- * @return 0 if error, 1 if success
- ********************************************************************************************/
-int socket_connect(void);
 
 
-#endif	SRC_SOCKET_H_
+
+#endif
+

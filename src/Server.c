@@ -22,7 +22,7 @@ int server_establish()
 	int recv_stat;
 	char str[30];
 	int send_data_len;
-	struct sockaddr_in server_addr;
+	
 
 	int socket_flag = 0;	/*Not Connected*/
 
