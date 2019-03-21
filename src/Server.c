@@ -9,132 +9,120 @@
  * Reference[2]: https://www.youtube.com/watch?v=pFLQmnmDOo
  */
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <mqueue.h>
-#include <time.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <sys/time.h>
-#include <netdb.h>
+//void set_sig_handler(void);
+//long getMicrotime();
 
-#define	LOG_FILE_NAME	"socketlog.txt"
-#define	PORT_NUM	(7000)
+#include"server.h"
 
-// typedef struct 
-// {
-// 	char string[20];
-// 	int len;
-// 	int led;
-	
-// }IPCMessage_t;
-
-char *RxBuf[10] = {0};
-
-void set_sig_handler(void);
-long getMicrotime();
-
-int socket_fd;
-int check_stat;
-int sig_flag = 0;
-int sock_stat;
-
-int main()
+int server_establish()
 {
-	set_sig_handler();
+	//set_sig_handler();
+
+	/*Server Thread*/
 	int recv_stat;
-	char str[20];
+	char str[30];
 	int send_data_len;
 	struct sockaddr_in server_addr;
-//	set_sig_handler();
-//	int send_data_len;
 
-	socket_fd = socket(AF_INET, SOCK_STREAM,0);
+	int socket_flag = 0;	/*Not Connected*/
 
-	if(socket_fd < 0)
+	while( socket_flag == 0 )
 	{
-		perror("Server: socket()");
-		exit(1);
-	}
+		if( socket_connect() )
+		{
+			socket_flag = 1;
 
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = INADDR_ANY;
-	server_addr.sin_port = htons(7000);
-	socket_fd = socket(AF_INET, SOCK_STREAM,0);
-
-	if(socket_fd < 0)
-	{
-		perror("Server: socket()");
-		exit(1);
-	}
-
-	if(bind(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)))
-	{
-		perror("Server: bind()");
-		exit(1);
-	}
-
-	listen(socket_fd, 5);
-
-	sock_stat = accept(socket_fd, (struct sockaddr *) 0,0);
-
-	if( sock_stat == -1)
-	{
-			perror("Serve: accept()");
-	}
-
-	while(1){
-			memset(str,0,sizeof(str));
-			if((recv_stat = recv(sock_stat, str,sizeof(str),0) < 0))
+			while(socket_flag == 1)
 			{
-				perror("read error");
-			}
-			RxBuf[0] = str;
+				memset(str,0,sizeof(str));
+				if((recv_stat = recv(sock_stat, str,sizeof(str),0) < 0))
+				{
+					perror("read error");
+					break;
+				}
 
-			if(strcmp(RxBuf[0],"request_temp_data") == 0)
-			{
-				printf("temp func received \n");
-				/*call temp_read()*/
-			}
+				RxBuf[0] = str;
 
-			else if(strcmp(RxBuf[0],"request_light_val") == 0)
-			{
-				printf("Light val func received \n");
-				/*call light_val()*/
-			}
+				if(strcmp(RxBuf[0],"request_temp_data") == 0)
+				{
+					printf("temp func received \n");
+					/*call temp_read()*/
+				}
 
-			else if(strcmp(RxBuf[0],"request_sys_state") == 0)
-			{
-				printf("System State func received \n");
-				/*System State func()*/
-			}
+				else if(strcmp(RxBuf[0],"request_light_val") == 0)
+				{
+					printf("Light val func received \n");
+					/*call light_val()*/
+				}
 
-			else if(strcmp(RxBuf[0],"close") == 0)
-			{
-				printf("Closing Socket \n");
-				close(socket_fd);
-				return 0;
+				else if(strcmp(RxBuf[0],"request_sys_state") == 0)
+				{
+					printf("System State func received \n");
+					/*System State func()*/
+				}
+
+				else if(strcmp(RxBuf[0],"close") == 0)
+				{
+					printf("Closing Socket \n");
+					socket_flag = 0;
+					close(socket_fd);
+					break;
+				}
+
+				else 
+					printf("Unrecognized command. Please try again!\n");
 			}
-				
-			else 
-				printf("Unrecognized command. Please try again!\n");
+		}
 	}
-
-	return 0;
 
 }
 
+/*******************************************************************************************
+ * @brief Socket Connection Routines
+ *
+ * Call the socket(), bind(), listen() and accept() and returns 1 on successful connection
+ * with an external client
+ 
+ * @param null
+ *
+ * @return 0 if error, 1 if success
+ ********************************************************************************************/
+int socket_connect(void)
+{
+		socket_fd = socket(AF_INET, SOCK_STREAM,0);
+
+		if(socket_fd < 0)
+		{
+			perror("Server: socket()");
+			return 0;
+		}
+
+		server_addr.sin_family = AF_INET;
+		server_addr.sin_addr.s_addr = INADDR_ANY;
+		server_addr.sin_port = htons(PORT_NUM);
+		socket_fd = socket(AF_INET, SOCK_STREAM,0);
+
+		if(bind(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)))
+		{
+			perror("Server: bind()");
+			return 0;
+		}
+
+		listen(socket_fd, 5);
+
+		sock_stat = accept(socket_fd, (struct sockaddr *) 0,0);
+
+		if( sock_stat == -1)
+		{
+			perror("Server: accept()");
+			return 0;				
+		}
+
+	return 1;
+}
 
 
 /*Below signals not called now*/
-
 
 
 void sig_handler(int signo, siginfo_t *info, void *extra)
