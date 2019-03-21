@@ -281,9 +281,29 @@ double read_lux(){
 	}
 
 	return luxVal;
-	return 0;
+//	return 0;
 
 
 }
 
+/***********************************************************************************************  
+ * @brief Power on light sensor 
+ *
+ *Responsible for turning On light sensor before reading any data
+ *
+ * @param  null
+ *
+ * @return null
+ *********************************************************************************************/
+
+
+sensor_status_t light_sensor_power_on(){
+	sensor_status_t status;
+	status = light_write_reg(CONTROL_REG,0x03);
+	if(status!=WRITE_REG_SUCCESS){
+	perror("Writing power on bit in Control register failed");
+	return WRITE_REG_FAIL; 
+	}
+	return WRITE_REG_SUCCESS;
+}
 

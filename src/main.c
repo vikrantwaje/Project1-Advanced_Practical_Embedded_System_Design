@@ -38,6 +38,11 @@
 	pthread_t thread1, thread2, thread3, thread4;
 	double timestamp;
 	int ret_status;
+	sensor_status_t stat;
+	stat=light_sensor_power_on();
+	if(stat !=WRITE_REG_SUCCESS){
+	perror("Power ON of light sensor failed");
+	}
 	create_log_timer();
 	create_heartbeat_timer();
 	/* Socket thread creation*/
@@ -102,7 +107,6 @@
 		fprintf( stderr, "logger thread not joined successfully, Error Code: %d\n", ret_status);
 	}
 	printf("Main Thread Exited Successfully \n");
-	while(1);
 	return 0;
 }
 

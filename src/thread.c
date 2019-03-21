@@ -40,8 +40,7 @@
  * @return null
  ********************************************************************************************/
 void *socket_thread( void* arg){
-	printf("\nHi from socket thread");
-	server_establish();
+//	printf("\nHi from socket thread");
 }
 
 
@@ -57,7 +56,10 @@ void *socket_thread( void* arg){
  *********************************************************************************************/
 
 void *temperature_thread( void* arg){
-	printf("\n\rHi from temp thread");
+	while(1){
+	printf("\n\rTemperature reading = %f",get_temperature(REQUEST_CELSIUS));
+	}
+//	printf("\n\rHi from temp thread");
 }
 
 
@@ -74,7 +76,10 @@ void *temperature_thread( void* arg){
  *********************************************************************************************/
 
 void *light_sensor_thread( void* arg){
-	printf("\n\rHi from light sensor thread");
+	while(1){
+	printf("\n\rLight reading = %f",read_lux());
+	}
+	//printf("\n\rHi from light sensor thread");
 }
 
 

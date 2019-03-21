@@ -112,4 +112,18 @@ sensor_status_t read_two_reg(uint8_t address, uint8_t *data);
  *********************************************************************************************/
 double read_lux();
 
+/***********************************************************************************************  
+ * @brief Power on light sensor 
+ *
+ *Responsible for turning On light sensor before reading any data
+ *
+ * @param  null
+ *
+ * @return null
+ *********************************************************************************************/
+
+sensor_status_t light_sensor_power_on();
+
+
+
 #endif	//SRC_LIGHT_H_

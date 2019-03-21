@@ -42,10 +42,10 @@
 /****************************************************************************************
 * 					GLOBAL VARIABLES
 *****************************************************************************************/
-char *RxBuf[10] = {0};
+char *RxBuf[10] ;
 int socket_fd;
 int check_stat;
-int sig_flag = 0;
+int sig_flag ;
 int sock_stat;
 struct sockaddr_in server_addr;
 
@@ -65,4 +65,4 @@ struct sockaddr_in server_addr;
 int socket_connect(void);
 
 
-#endif	SRC_SOCKET_H_
+#endif //SRC_SOCKET_H_
