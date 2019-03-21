@@ -58,7 +58,7 @@ void *socket_thread( void* arg){
 
 void *temperature_thread( void* arg){
 	while(1){
-	printf("\n\rTemperature reading = %f",get_temperature(REQUEST_CELSIUS));
+//	printf("\n\rTemperature reading = %f",get_temperature(REQUEST_CELSIUS));
 	}
 //	printf("\n\rHi from temp thread");
 }
@@ -78,7 +78,7 @@ void *temperature_thread( void* arg){
 
 void *light_sensor_thread( void* arg){
 	while(1){
-	printf("\n\rLight reading = %f",read_lux());
+//	printf("\n\rLight reading = %f",read_lux());
 	}
 	//printf("\n\rHi from light sensor thread");
 }
@@ -98,7 +98,8 @@ void *light_sensor_thread( void* arg){
  *********************************************************************************************/
 
  void *logger_thread( void* arg){
-	printf("\n\rHi from logger thread");
+	while(1);
+	//printf("\n\rHi from logger thread");
 }
 
 

@@ -1,7 +1,7 @@
-#ifndef SRC_SOCKET_H_
-#define	SRC_SOCKET_H_
+#ifndef SRC_SERVER_H_
+#define	SRC_SERVER_H_
 /********************************************************************************************
-*					FILENAME: socket.h
+*					FILENAME: server.h
 **********************************************************************************************/
 /*
  * Author: Tanmay Chaturvedi, Vikrant Waje
@@ -64,5 +64,6 @@ struct sockaddr_in server_addr;
  ********************************************************************************************/
 int socket_connect(void);
 
+int server_establish(void);
 
-#endif //SRC_SOCKET_H_
+#endif //SRC_SERVER_H_

@@ -42,7 +42,7 @@ printf("Before scket();\n");
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(7000);
 	//server_addr.sin_addr.s_addr = inet_addr("128.138.189.197");
-	server_addr.sin_addr.s_addr = inet_addr("10.0.0.78");	
+	server_addr.sin_addr.s_addr = inet_addr("192.168.0.2");	
 	//server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	printf("About to Connect() scket();\n");
