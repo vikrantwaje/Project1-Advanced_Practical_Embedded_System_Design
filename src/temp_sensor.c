@@ -16,12 +16,13 @@
 *					HEADER FILE SECTION
 *****************************************************************************************/
 #include "temp_sensor.h"
+#include"synchronization.h"
 
 /**************************************************************************************
 *					GLOBAL VARIABLE
 *******************************************************************************************/
 const char *temp_i2c_path_name = "/dev/i2c-2";
-
+pthread_mutex_t i2c_mutex;
 
 /**********************************************************************************
 *				FUNCTION DEFINITION
@@ -37,6 +38,7 @@ const char *temp_i2c_path_name = "/dev/i2c-2";
  *********************************************************************************************/
 
 sensor_status_t write_ptr_reg(uint8_t address){
+	pthread_mutex_lock(&i2c_mutex);
 	int status = 0;
 	int n =0;
 	int fptr = open(temp_i2c_path_name,O_RDWR);	
@@ -55,6 +57,7 @@ sensor_status_t write_ptr_reg(uint8_t address){
 		return WRITE_REG_FAIL;
 	}
 	close(fptr);
+	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
 
@@ -69,6 +72,7 @@ sensor_status_t write_ptr_reg(uint8_t address){
  *********************************************************************************************/
 
 sensor_status_t temperature_write_reg(uint8_t address, uint16_t data){
+	pthread_mutex_lock(&i2c_mutex);
 	int status =0;
 	int fptr = 0;
 	int n = 0;
@@ -94,6 +98,7 @@ sensor_status_t temperature_write_reg(uint8_t address, uint16_t data){
 	}
 	close(fptr);
 	free(buffer);
+	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
 
@@ -110,6 +115,7 @@ sensor_status_t temperature_write_reg(uint8_t address, uint16_t data){
 
 
 sensor_status_t temperature_read_reg(uint8_t address, uint8_t *data,reg_read_cmd_t command){
+	pthread_mutex_lock(&i2c_mutex);
 	int status =0;
 	int fptr = 0;
 	int n = 0;
@@ -168,7 +174,7 @@ sensor_status_t temperature_read_reg(uint8_t address, uint8_t *data,reg_read_cmd
 		*(data + 1) = *(data +1);
 	}
 	close(fptr);
-
+	pthread_mutex_unlock(&i2c_mutex);
 	return READ_REG_SUCCESS;
 
 }

@@ -36,12 +36,10 @@
  int main()
 {
 	pthread_t thread1, thread2, thread3, thread4;
-
+	double timestamp;
 	int ret_status;
 	create_log_timer();
 	create_heartbeat_timer();
-	
-
 	/* Socket thread creation*/
 	ret_status = pthread_create( &thread1, NULL, socket_thread,0);
 	if( ret_status )
@@ -65,7 +63,13 @@
 		fprintf( stderr, "light_sensor_thread not created, Error Code: %d\n", ret_status);
 		return 0;
 	}
-	
+
+	timestamp=record_time();
+
+	FILE *fptr = fopen("log.txt","a+");
+	LOG(timestamp);
+	fclose(fptr);
+
 	/*logger thread creation*/
 	ret_status = pthread_create( &thread4, NULL, logger_thread,0);
 

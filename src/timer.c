@@ -95,6 +95,19 @@ bool create_heartbeat_timer(){
 	timer_settime(heartbeat_timer_id,0,&timer_setting,NULL);
 	return 0;
 }
+/***********************************************************************************************
+ * @brief Record the timestamp value
+ *
+ * Responsible for recording the timestamp value
+ * @param null
+ *
+ * @return double: returns the recorded time value
+ *********************************************************************************************/
+double record_time(){
+	struct timespec timestamp;
+	 clock_gettime(CLOCK_MONOTONIC,&timestamp);
+	return((timestamp.tv_sec * (SEC_TO_MILLISEC))+ (timestamp.tv_nsec/(NANOSEC_TO_MILLISEC)) );	//Convert into milliseconds
 
 
+}
 

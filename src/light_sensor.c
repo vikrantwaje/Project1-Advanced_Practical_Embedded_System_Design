@@ -16,14 +16,20 @@
 *					HEADER FILE SECTION
 *****************************************************************************************/
 #include "light_sensor.h"
-
+#include"synchronization.h"
 
 /***************************************************************************************
 *					GLOBAL VARIABLE
 ****************************************************************************************/
 const char *light_i2c_path_name = "/dev/i2c-2";
+pthread_mutex_t i2c_mutex;
 
-/***********************************************************************************************  * @brief write register in light sensor 
+/***************************************************************************************
+*				FUNCTION DEFINITION
+***********************************************************************************************/
+
+/***********************************************************************************************  
+ * @brief write register in light sensor 
  *
  *Responsible for writing into  register of light sensor
  *
@@ -35,6 +41,7 @@ const char *light_i2c_path_name = "/dev/i2c-2";
 
 
 sensor_status_t light_write_reg(uint8_t address, uint8_t data){
+	pthread_mutex_lock(&i2c_mutex);
 	int status =0;
 	int fptr = 0;
 	int n = 0;
@@ -59,10 +66,12 @@ sensor_status_t light_write_reg(uint8_t address, uint8_t data){
 	}
 	close(fptr);
 	free(buffer);
+	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
 
-/***********************************************************************************************  * @brief Read register in light sensor 
+/***********************************************************************************************  
+ * @brief Read register in light sensor 
  *
  *Responsible for reading from register of light sensor
  *
@@ -74,6 +83,7 @@ sensor_status_t light_write_reg(uint8_t address, uint8_t data){
 
 
 sensor_status_t light_read_reg(uint8_t address, uint8_t *data,read_cmd_t command){
+	pthread_mutex_lock(&i2c_mutex);	
 	int status =0;
 	int fptr = 0;
 	int n = 0;
@@ -111,11 +121,12 @@ sensor_status_t light_read_reg(uint8_t address, uint8_t *data,read_cmd_t command
 	}
 
 	close(fptr);
-
+	pthread_mutex_unlock(&i2c_mutex);
 	return READ_REG_SUCCESS;
 
 }
-/***********************************************************************************************  * @brief Read two register in light sensor 
+/***********************************************************************************************
+ * @brief Read two register in light sensor 
  *
  *Responsible for reading from two  register of light sensor
  *
@@ -127,7 +138,7 @@ sensor_status_t light_read_reg(uint8_t address, uint8_t *data,read_cmd_t command
 
 
 sensor_status_t read_two_reg(uint8_t address, uint8_t *data){
-
+	pthread_mutex_lock(&i2c_mutex);
 	int status =0;
 	int fptr = 0;
 	int n =0;
@@ -156,10 +167,12 @@ sensor_status_t read_two_reg(uint8_t address, uint8_t *data){
 
 	}
 	close(fptr);
+	pthread_mutex_unlock(&i2c_mutex);
 	return READ_REG_SUCCESS;
 }
 
-/***********************************************************************************************  * @brief Read lux values 
+/***********************************************************************************************
+ * @brief Read lux values 
  *
  *Responsible for reading lux value from light sensor
  *

@@ -22,6 +22,8 @@
 #include"timer.h"
 #include"temp_sensor.h"
 #include"light_sensor.h"
+#include"logger.h"
+#include"synchronization.h"
 /**************************************************************************************
 *					     MACROS
 ****************************************************************************************/

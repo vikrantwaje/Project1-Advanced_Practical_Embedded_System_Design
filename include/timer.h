@@ -24,6 +24,12 @@
 #include<stdbool.h>
 
 /****************************************************************************************
+*				     MACROS AND ENUMS
+*****************************************************************************************/
+#define SEC_TO_MILLISEC		(1000.0)
+#define NANOSEC_TO_MILLISEC	(1000000.0)
+
+/****************************************************************************************
 *				GLOBAL VARIABLE SECTION
 *****************************************************************************************/
 //Flag variables
@@ -46,7 +52,8 @@ struct sigevent signal_specification;
  * @param null
  *
  * @return null
- *********************************************************************************************/void log_timer_handler(int num);
+ *********************************************************************************************/
+void log_timer_handler(int num);
 /***********************************************************************************************
  * @brief heartbeat timer handler
  *
@@ -76,5 +83,14 @@ bool create_log_timer();
  * @return bool: Indicates whether intiialisation was successfull or not
  *********************************************************************************************/
 bool create_heartbeat_timer();
+/***********************************************************************************************
+ * @brief Record the timestamp value
+ *
+ * Record the timestamp value using clock_get_time function
+ * @param null
+ *
+ * @return double: timestamp value
+ *********************************************************************************************/
+double record_time();
 
 #endif //TIMER_H_
