@@ -32,12 +32,19 @@
 #include <netinet/in.h>
 #include <sys/time.h>
 #include <netdb.h>
+#include<stdbool.h>
+#include"temp_sensor.h"
 
 /***************************************************************************************
 *					MACROS AND ENUMS
 ****************************************************************************************/
 #define	PORT_NUM	(7000)
 #define	LOG_FILE_NAME	"socketlog.txt"
+#define NO_OF_CLIENT	(5)
+
+typedef enum{
+	SOCKET_FAIL,REUSE_FAIL,BIND_FAIL,LISTEN_FAIL,ACCEPT_FAIL,SOCKET_CONNECT_SUCCESS,SOCKET_SETUP_SUCCESS
+}server_response_t;
 
 /****************************************************************************************
 * 					GLOBAL VARIABLES
@@ -48,6 +55,12 @@ int check_stat;
 int sig_flag ;
 int sock_stat;
 struct sockaddr_in server_addr;
+
+extern bool client_get_temp_flag;
+extern bool client_get_lux_flag;
+extern bool client_get_system_stat_flag;
+
+//extern request_cmd_t client_request_temperature_type;
 
 /****************************************************************************************
 * 					FUNCTION PROTOTYPES
@@ -62,7 +75,7 @@ struct sockaddr_in server_addr;
  *
  * @return 0 if error, 1 if success
  ********************************************************************************************/
-int socket_connect(void);
+server_response_t socket_connect(void);
 
 
 /*******************************************************************************************
@@ -74,7 +87,7 @@ int socket_connect(void);
  *
  * @return 0 if error, 1 if success
  ********************************************************************************************/
-int socket_setup(void);
+server_response_t socket_setup(void);
 
 
 /*******************************************************************************************

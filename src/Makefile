@@ -1,4 +1,4 @@
-CC=gcc
+CC=arm-linux-gcc
 CFLAGS=-g
 LFLAGS=
 LIBS=-lpthread -lrt -lm

@@ -41,7 +41,6 @@ pthread_mutex_t i2c_mutex;
 
 
 sensor_status_t light_write_reg(uint8_t address, uint8_t data){
-	pthread_mutex_lock(&i2c_mutex);
 	int status =0;
 	int fptr = 0;
 	int n = 0;
@@ -66,7 +65,6 @@ sensor_status_t light_write_reg(uint8_t address, uint8_t data){
 	}
 	close(fptr);
 	free(buffer);
-	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
 
@@ -83,7 +81,6 @@ sensor_status_t light_write_reg(uint8_t address, uint8_t data){
 
 
 sensor_status_t light_read_reg(uint8_t address, uint8_t *data,read_cmd_t command){
-	pthread_mutex_lock(&i2c_mutex);	
 	int status =0;
 	int fptr = 0;
 	int n = 0;
@@ -121,7 +118,6 @@ sensor_status_t light_read_reg(uint8_t address, uint8_t *data,read_cmd_t command
 	}
 
 	close(fptr);
-	pthread_mutex_unlock(&i2c_mutex);
 	return READ_REG_SUCCESS;
 
 }
@@ -138,7 +134,6 @@ sensor_status_t light_read_reg(uint8_t address, uint8_t *data,read_cmd_t command
 
 
 sensor_status_t read_two_reg(uint8_t address, uint8_t *data){
-	pthread_mutex_lock(&i2c_mutex);
 	int status =0;
 	int fptr = 0;
 	int n =0;
@@ -167,7 +162,6 @@ sensor_status_t read_two_reg(uint8_t address, uint8_t *data){
 
 	}
 	close(fptr);
-	pthread_mutex_unlock(&i2c_mutex);
 	return READ_REG_SUCCESS;
 }
 
@@ -182,6 +176,8 @@ sensor_status_t read_two_reg(uint8_t address, uint8_t *data){
 
 
 double read_lux(){
+	pthread_mutex_lock(&i2c_mutex);
+
 	uint8_t *data = malloc(sizeof(uint8_t)*2);
 	int status = 0;
 	status = read_two_reg(DATA1LOW_REG,data);
@@ -280,8 +276,11 @@ double read_lux(){
 		luxVal = (0.00146 * ch0) - (0.00112*ch1);
 	}
 
+
+	pthread_mutex_unlock(&i2c_mutex);
 	return luxVal;
 //	return 0;
+
 
 
 }
@@ -298,12 +297,16 @@ double read_lux(){
 
 
 sensor_status_t light_sensor_power_on(){
+	pthread_mutex_lock(&i2c_mutex);
+
 	sensor_status_t status;
 	status = light_write_reg(CONTROL_REG,0x03);
 	if(status!=WRITE_REG_SUCCESS){
 	perror("Writing power on bit in Control register failed");
 	return WRITE_REG_FAIL; 
 	}
+	
+	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
 

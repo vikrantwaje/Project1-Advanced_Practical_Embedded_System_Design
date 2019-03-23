@@ -27,8 +27,8 @@ int main()
 	int tan;
 	int send_data_len;
 
-printf("Before scket();\n");
-	
+	printf("Before scket();\n");
+
 	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
 	if(socket_fd < 0)
@@ -54,24 +54,30 @@ printf("Before scket();\n");
 		exit(1);
 	}
 
-while(1){
-int msg_tx;
-char input_cmd[20];
-printf("\nEnter any of the following commands: \n");
-printf("\"request_temp_data_kelvin\": for receiving temperature sensor values in Kelvin\n");
-printf("\"request_temp_data_celcius\": for receiving temperature sensor values in Celcius \n");
-printf("\"request_temp_data_fahren\": for receiving temperature sensor values in Fahrenheit\n");
-printf("\"request_light_val\": for receiving light sensor values \n");
-printf("\"request_sys_state\": for receiving live system stat \n");
-printf("\"close\": for terminating connection \n\n");
+	while(1){
+		int msg_tx;
+		char input_cmd[20];
+		printf("\nEnter any of the following commands: \n");
+		printf("\"request_temp_data_kelvin\": for receiving temperature sensor values in Kelvin\n");
+		printf("\"request_temp_data_celcius\": for receiving temperature sensor values in Celcius \n");
+		printf("\"request_temp_data_fahren\": for receiving temperature sensor values in Fahrenheit\n");
+		printf("\"request_light_val\": for receiving light sensor values \n");
+		printf("\"request_sys_state\": for receiving live system stat \n");
+		printf("\"close\": for terminating connection \n\n");
 
 
-scanf("\n%s", input_cmd);
-int msg_txing[1];
+		scanf("\n%s", input_cmd);
+		int msg_txing[1];
 		msg_txing[0] = msg_tx;
 		send_data_len = send(socket_fd, &input_cmd, 17, 0);
 		printf("Command being sent = %s\n",input_cmd);
-}
+		if(strcmp(input_cmd,"close") ==0 ){
+			close(socket_fd);
+			printf("\n\rClosing socket");
+			break;
+		}
+
+	}
 	return 0;
 
 }
@@ -92,15 +98,15 @@ void sig_handler(int signo, siginfo_t *info, void *extra)
 
 void set_sig_handler(void)
 {
-    struct sigaction action;
-    action.sa_flags = SA_SIGINFO; 
-    action.sa_sigaction = sig_handler;
- 
-    if (sigaction(SIGINT, &action, NULL) == -1)
-    { 
-        perror("sigusr: sigaction");
-        _exit(1);
-    }
+	struct sigaction action;
+	action.sa_flags = SA_SIGINFO; 
+	action.sa_sigaction = sig_handler;
+
+	if (sigaction(SIGINT, &action, NULL) == -1)
+	{ 
+		perror("sigusr: sigaction");
+		_exit(1);
+	}
 }
 
 long getMicrotime(){

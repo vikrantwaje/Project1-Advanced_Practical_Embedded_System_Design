@@ -1,6 +1,6 @@
 /********************************************************************************************
-*					FILENAME: thread.c
-**********************************************************************************************/
+ *					FILENAME: thread.c
+ **********************************************************************************************/
 /*
  * Author: Tanmay Chaturvedi, Vikrant Waje
  * Date Created: March 16, 2019
@@ -13,19 +13,26 @@
  * 
  * */
 /****************************************************************************************
-*					HEADER FILE SECTION
-*****************************************************************************************/
+ *					HEADER FILE SECTION
+ *****************************************************************************************/
 
 #include"main.h" 
 
 /**************************************************************************************
-*					     MACROS
-****************************************************************************************/
-
+ *					     MACROS
+ ****************************************************************************************/
 
 /**************************************************************************************
-*					FUNCTION DEFINITION
-***************************************************************************************/
+ *					     GLOBAL VARIABLES
+ ****************************************************************************************/
+bool client_get_temp_flag;
+bool client_get_system_stat_flag;
+bool client_get_lux_flag;
+//request_cmd_t client_request_temperature_type = REQUEST_CELSIUS;	//default reuqest celsius
+
+/**************************************************************************************
+ *					FUNCTION DEFINITION
+ ***************************************************************************************/
 
 /*******************************************************************************************
  * @brief Socket thread
@@ -40,7 +47,6 @@
  * @return null
  ********************************************************************************************/
 void *socket_thread( void* arg){
-//	printf("\nHi from socket thread");
 	int ret_status = server_establish();
 }
 
@@ -57,10 +63,16 @@ void *socket_thread( void* arg){
  *********************************************************************************************/
 
 void *temperature_thread( void* arg){
+	double temperature_data = 0; 
 	while(1){
-//	printf("\n\rTemperature reading = %f",get_temperature(REQUEST_CELSIUS));
+		temperature_data = get_temperature(REQUEST_CELSIUS);
+		//sleep(1);
+		if(client_get_temp_flag == 1){
+	//send message through queue to server task
+		printf("\n\rTemperature data called from client: %lf",temperature_data);	
+		client_get_temp_flag =0;
+		}
 	}
-//	printf("\n\rHi from temp thread");
 }
 
 
@@ -77,10 +89,21 @@ void *temperature_thread( void* arg){
  *********************************************************************************************/
 
 void *light_sensor_thread( void* arg){
+	double lux_data = 0;
 	while(1){
-//	printf("\n\rLight reading = %f",read_lux());
+		//client_get_lux_flag = 1;
+		if(client_get_lux_flag == 1){
+		//send message through queue to server task
+
+		lux_data = read_lux(); 
+		printf("\n\rLight data called from client:%lf",lux_data);
+	
+
+		client_get_lux_flag = 0;
+
+}
 	}
-	//printf("\n\rHi from light sensor thread");
+
 }
 
 
@@ -97,10 +120,10 @@ void *light_sensor_thread( void* arg){
  * @return null
  *********************************************************************************************/
 
- void *logger_thread( void* arg){
-	while(1);
-	//printf("\n\rHi from logger thread");
-}
+void *logger_thread( void* arg){
+/*	while(1)
+	printf("\n\rHi from logger thread");
+*/}
 
 
 

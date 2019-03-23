@@ -25,6 +25,8 @@
 #include<stdint.h>
 #include<stdlib.h>
 #include"i2c_status.h"
+#include"logger.h"
+#include"server.h"
 /****************************************************************************************
 *					MACROS AND ENUMS
 *****************************************************************************************/
@@ -60,6 +62,8 @@ typedef enum{
 typedef enum{
 	FAULT,EM,CONVERSION_RATE,SD_MODE,RESOLUTION,ALL
 }reg_read_cmd_t;
+
+
 
 /****************************************************************************************
 *				GLOBAL VARIABLE SECTION

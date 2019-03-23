@@ -19,12 +19,23 @@
 #define LOGGER_H_
 
 #include<stdio.h>
-
+#include<stdint.h>
 /**************************************************************************************
 *					     MACROS
 ****************************************************************************************/
 
+
+
 #define LOG(time) fprintf(fptr,"\n%c%c%lf%c%s %s %lu ",'\n','[',time,']'," Entering thread,","pid = ",pthread_self());	//Log into the file
+
+
+typedef struct{
+	double timestamp;
+	int log_level;
+	uint8_t * source_ID;
+	double data;
+}log_t;
+
 
 /**************************************************************************************
 *					GLOBAL VARIABLES

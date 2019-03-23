@@ -14,6 +14,11 @@
 
 #include"server.h"
 
+
+
+bool client_get_temp_flag;
+bool client_get_lux_flag;
+bool client_get_system_stat_flag;
 /*******************************************************************************************
  * @brief Communicate with external client
  *
@@ -35,10 +40,10 @@ int server_establish()
 
 
 	int socket_flag = 0;	/*Not Connected*/
-
-	while( socket_flag == 0 )
-	{
-		if( socket_connect() )
+	while(socket_setup() != SOCKET_SETUP_SUCCESS);
+	//while( socket_flag == 0 )
+	//{
+		if( socket_connect() == SOCKET_CONNECT_SUCCESS )
 		{
 			socket_flag = 1;
 
@@ -48,6 +53,7 @@ int server_establish()
 				if((recv_stat = recv(sock_stat, str,sizeof(str),0) < 0))
 				{
 					perror("read error");
+					socket_flag = 0;
 					break;
 				}
 
@@ -55,35 +61,40 @@ int server_establish()
 
 				if(strcmp(RxBuf[0],"request_temp_data") == 0)
 				{
-					printf("temp func received \n");
+					printf("\n\rtemp func received ");
 					/*call temp_read()*/
+					client_get_temp_flag = 1;
 				}
 
 				else if(strcmp(RxBuf[0],"request_light_val") == 0)
 				{
-					printf("Light val func received \n");
+					printf("\n\rLight val func received ");
 					/*call light_val()*/
+					client_get_lux_flag = 1;
 				}
 
 				else if(strcmp(RxBuf[0],"request_sys_state") == 0)
 				{
 					printf("System State func received \n");
 					/*System State func()*/
-				}
+					client_get_system_stat_flag =1;
+				}	
 
 				else if(strcmp(RxBuf[0],"close") == 0)
 				{
 					printf("Closing Socket \n");
 					socket_flag = 0;
-					close(socket_fd);
+					close(socket_fd);	
+
 					break;
 				}
 
 				else 
+				{
 					printf("Unrecognized command. Please try again!\n");
+				}	
 			}
-		}
-		else return 0;
+		//}
 	}
 
 }
@@ -95,14 +106,43 @@ int server_establish()
  * @brief Socket Setup Routines
  *
  * Call the socket(), bind() and returns 1 on successful setup
- 
+
  * @param null
  *
  * @return 0 if error, 1 if success
  ********************************************************************************************/
-int socket_setup()
+server_response_t socket_setup()
 {
+	int sock_opt_true = 1;
+	int listen_status = 0;
+	socket_fd = socket(AF_INET, SOCK_STREAM,0);
 
+	if(socket_fd < 0)
+	{
+		perror("Server: socket()");
+		return SOCKET_FAIL;
+	}
+
+		if(setsockopt(socket_fd,SOL_SOCKET,SO_REUSEADDR,&sock_opt_true,sizeof(int)) == -1){
+		perror("Setsockopt");
+		return REUSE_FAIL;
+		}
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_addr.s_addr = INADDR_ANY;
+	server_addr.sin_port = htons(PORT_NUM);
+	socket_fd = socket(AF_INET, SOCK_STREAM,0);
+
+	if(bind(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)))
+	{
+		perror("Server: bind()");
+		return BIND_FAIL;
+	}
+
+	listen_status=listen(socket_fd, NO_OF_CLIENT);
+	if(listen_status == -1){
+		LISTEN_FAIL;}
+
+	return SOCKET_SETUP_SUCCESS;
 }
 
 
@@ -111,43 +151,23 @@ int socket_setup()
  *
  * Call the listen() and accept() and returns 1 on successful connection
  * with an external client
- 
+
  * @param null
  *
  * @return 0 if error, 1 if success
  ********************************************************************************************/
-int socket_connect(void)
-{
-		socket_fd = socket(AF_INET, SOCK_STREAM,0);
+server_response_t socket_connect(void)
+{	
 
-		if(socket_fd < 0)
-		{
-			perror("Server: socket()");
-			return 0;
-		}
+	sock_stat = accept(socket_fd, (struct sockaddr *) 0,0);
 
-		server_addr.sin_family = AF_INET;
-		server_addr.sin_addr.s_addr = INADDR_ANY;
-		server_addr.sin_port = htons(PORT_NUM);
-		socket_fd = socket(AF_INET, SOCK_STREAM,0);
+	if( sock_stat == -1)
+	{
+		perror("Server: accept()");
+		return ACCEPT_FAIL;				
+	}
 
-		if(bind(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)))
-		{
-			perror("Server: bind()");
-			return 0;
-		}
-
-		listen(socket_fd, 5);
-
-		sock_stat = accept(socket_fd, (struct sockaddr *) 0,0);
-
-		if( sock_stat == -1)
-		{
-			perror("Server: accept()");
-			return 0;				
-		}
-
-	return 1;
+	return SOCKET_CONNECT_SUCCESS;
 }
 
 
@@ -168,16 +188,16 @@ void sig_handler(int signo, siginfo_t *info, void *extra)
 
 void set_sig_handler(void)
 {
-    struct sigaction action;
-    action.sa_flags = SA_SIGINFO; 
+	struct sigaction action;
+	action.sa_flags = SA_SIGINFO; 
 
-    action.sa_sigaction = sig_handler;
- 
-    if (sigaction(SIGINT, &action, NULL) == -1)
-    { 
-        perror("sigusr: sigaction");
-        _exit(1);
-    }
+	action.sa_sigaction = sig_handler;
+
+	if (sigaction(SIGINT, &action, NULL) == -1)
+	{ 
+		perror("sigusr: sigaction");
+		_exit(1);
+	}
 }
 
 long getMicrotime(){

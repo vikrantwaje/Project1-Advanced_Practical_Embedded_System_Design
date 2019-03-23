@@ -43,8 +43,8 @@
 	if(stat !=WRITE_REG_SUCCESS){
 	perror("Power ON of light sensor failed");
 	}
-	create_log_timer();
-	create_heartbeat_timer();
+//	create_log_timer();
+//	create_heartbeat_timer();
 	/* Socket thread creation*/
 	ret_status = pthread_create( &thread1, NULL, socket_thread,0);
 	if( ret_status )
