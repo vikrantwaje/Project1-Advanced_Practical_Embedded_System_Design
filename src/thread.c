@@ -25,10 +25,12 @@
 /**************************************************************************************
  *					     GLOBAL VARIABLES
  ****************************************************************************************/
-bool client_get_temp_flag;
+/*bool client_get_temp_flag;
 bool client_get_system_stat_flag;
 bool client_get_lux_flag;
-//request_cmd_t client_request_temperature_type = REQUEST_CELSIUS;	//default reuqest celsius
+*/
+client_request_t client_request;
+request_cmd_t client_temperature_type_request ;
 
 /**************************************************************************************
  *					FUNCTION DEFINITION
@@ -65,12 +67,12 @@ void *socket_thread( void* arg){
 void *temperature_thread( void* arg){
 	double temperature_data = 0; 
 	while(1){
-		temperature_data = get_temperature(REQUEST_CELSIUS);
+		temperature_data = get_temperature(client_temperature_type_request);
 		//sleep(1);
-		if(client_get_temp_flag == 1){
+		if(client_request.client_get_temp_flag == 1){
 	//send message through queue to server task
 		printf("\n\rTemperature data called from client: %lf",temperature_data);	
-		client_get_temp_flag =0;
+		client_request.client_get_temp_flag =0;
 		}
 	}
 }
@@ -92,14 +94,14 @@ void *light_sensor_thread( void* arg){
 	double lux_data = 0;
 	while(1){
 		//client_get_lux_flag = 1;
-		if(client_get_lux_flag == 1){
+		if(client_request.client_get_lux_flag == 1){
 		//send message through queue to server task
 
 		lux_data = read_lux(); 
 		printf("\n\rLight data called from client:%lf",lux_data);
 	
 
-		client_get_lux_flag = 0;
+		client_request.client_get_lux_flag = 0;
 
 }
 	}

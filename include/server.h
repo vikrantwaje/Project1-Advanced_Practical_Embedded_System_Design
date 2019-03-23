@@ -56,11 +56,11 @@ int sig_flag ;
 int sock_stat;
 struct sockaddr_in server_addr;
 
-extern bool client_get_temp_flag;
-extern bool client_get_lux_flag;
-extern bool client_get_system_stat_flag;
-
-//extern request_cmd_t client_request_temperature_type;
+typedef struct{
+ bool client_get_temp_flag;
+ bool client_get_lux_flag;
+ bool client_get_system_stat_flag;
+}client_request_t;
 
 /****************************************************************************************
 * 					FUNCTION PROTOTYPES

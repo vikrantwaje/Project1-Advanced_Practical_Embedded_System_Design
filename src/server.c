@@ -13,12 +13,11 @@
 //long getMicrotime();
 
 #include"server.h"
+#include"temp_sensor.h"
 
 
-
-bool client_get_temp_flag;
-bool client_get_lux_flag;
-bool client_get_system_stat_flag;
+client_request_t client_request;
+request_cmd_t client_temperature_type_request;
 /*******************************************************************************************
  * @brief Communicate with external client
  *
@@ -63,21 +62,22 @@ int server_establish()
 				{
 					printf("\n\rtemp func received ");
 					/*call temp_read()*/
-					client_get_temp_flag = 1;
+					client_temperature_type_request = REQUEST_CELSIUS;
+					client_request.client_get_temp_flag = 1;
 				}
 
 				else if(strcmp(RxBuf[0],"request_light_val") == 0)
 				{
 					printf("\n\rLight val func received ");
 					/*call light_val()*/
-					client_get_lux_flag = 1;
+					client_request.client_get_lux_flag = 1;
 				}
 
 				else if(strcmp(RxBuf[0],"request_sys_state") == 0)
 				{
 					printf("System State func received \n");
 					/*System State func()*/
-					client_get_system_stat_flag =1;
+					client_request.client_get_system_stat_flag =1;
 				}	
 
 				else if(strcmp(RxBuf[0],"close") == 0)
