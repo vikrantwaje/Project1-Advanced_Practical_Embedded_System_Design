@@ -29,9 +29,10 @@
 bool client_get_system_stat_flag;
 bool client_get_lux_flag;
 */
+
 client_request_t client_request;
 request_cmd_t client_temperature_type_request ;
-
+client_data_t client_data;
 /**************************************************************************************
  *					FUNCTION DEFINITION
  ***************************************************************************************/
@@ -71,7 +72,9 @@ void *temperature_thread( void* arg){
 		//sleep(1);
 		if(client_request.client_get_temp_flag == 1){
 	//send message through queue to server task
-		printf("\n\rTemperature data called from client: %lf",temperature_data);	
+		//printf("\n\rTemperature data called from client: %lf",temperature_data);
+		strcpy(client_data.sensor_string,"Temperature value:");
+		client_data.sensor_data = temperature_data;	
 		client_request.client_get_temp_flag =0;
 		}
 	}

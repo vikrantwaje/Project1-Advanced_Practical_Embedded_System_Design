@@ -34,7 +34,7 @@
 #include <netdb.h>
 #include<stdbool.h>
 #include"temp_sensor.h"
-
+#include"ipc.h"
 /***************************************************************************************
 *					MACROS AND ENUMS
 ****************************************************************************************/
@@ -45,6 +45,9 @@
 typedef enum{
 	SOCKET_FAIL,REUSE_FAIL,BIND_FAIL,LISTEN_FAIL,ACCEPT_FAIL,SOCKET_CONNECT_SUCCESS,SOCKET_SETUP_SUCCESS
 }server_response_t;
+
+
+
 
 /****************************************************************************************
 * 					GLOBAL VARIABLES

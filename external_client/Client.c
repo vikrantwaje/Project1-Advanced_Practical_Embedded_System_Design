@@ -13,19 +13,21 @@
 #include"Client.h"
 
 
+client_data_t client_data;
 //void set_sig_handler(void);
 //long getMicrotime();
 
 
 int main()
 {
-	set_sig_handler();
+	//	set_sig_handler();
 	struct sockaddr_in server_addr;
 	char msg_buf[10];
 	char msg_buf1[10];
 	char RxBuf[10][10];
 	int tan;
 	int send_data_len;
+	char temp_num[30];
 
 	printf("Before scket();\n");
 
@@ -54,8 +56,9 @@ int main()
 		exit(1);
 	}
 
+
 	while(1){
-		int msg_tx;
+		//	int msg_tx;
 		char input_cmd[20];
 		printf("\nEnter any of the following commands: \n");
 		printf("\"request_temp_data_kelvin\": for receiving temperature sensor values in Kelvin\n");
@@ -66,9 +69,9 @@ int main()
 		printf("\"close\": for terminating connection \n\n");
 
 
-		scanf("\n%s", input_cmd);
-		int msg_txing[1];
-		msg_txing[0] = msg_tx;
+		scanf("\n%s", input_cmd);  //Blocking statement
+		//	int msg_txing[1];
+		//	msg_txing[0] = msg_tx;
 		send_data_len = send(socket_fd, &input_cmd, 17, 0);
 		printf("Command being sent = %s\n",input_cmd);
 		if(strcmp(input_cmd,"close") ==0 ){
@@ -76,6 +79,15 @@ int main()
 			printf("\n\rClosing socket");
 			break;
 		}
+		if(recv(socket_fd,&client_data,sizeof(client_data_t), 0)<0){
+			perror("Error in receiving structure for sensor. Try again!!");
+		}
+		else{
+			printf("%s %lf",client_data.sensor_string,client_data.sensor_data);
+		}
+
+
+
 
 	}
 	return 0;
@@ -83,34 +95,4 @@ int main()
 }
 
 
-/*Below signals not called now*/
 
-void sig_handler(int signo, siginfo_t *info, void *extra)
-{
-	sig_flag = 1;
-	// fptr = fopen(LOG_FILE_NAME, "a");
-	// fprintf(fptr, "Time - %ld", getMicrotime());
-	// fprintf(fptr, "SIG Detected, Exiting!\n");
-	// fclose(fptr);
-	close(socket_fd);
-	exit(0);
-}
-
-void set_sig_handler(void)
-{
-	struct sigaction action;
-	action.sa_flags = SA_SIGINFO; 
-	action.sa_sigaction = sig_handler;
-
-	if (sigaction(SIGINT, &action, NULL) == -1)
-	{ 
-		perror("sigusr: sigaction");
-		_exit(1);
-	}
-}
-
-long getMicrotime(){
-	struct timeval currentTime;
-	gettimeofday(&currentTime, NULL);
-	return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
-}

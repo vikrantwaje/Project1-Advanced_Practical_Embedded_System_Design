@@ -18,6 +18,7 @@
 
 client_request_t client_request;
 request_cmd_t client_temperature_type_request;
+client_data_t client_data;
 /*******************************************************************************************
  * @brief Communicate with external client
  *
@@ -35,26 +36,33 @@ int server_establish()
 	/*Server Thread*/
 	int recv_stat;
 	char str[30];
-	int send_data_len;
-
+	int send_data_len = 0;
 
 	int socket_flag = 0;	/*Not Connected*/
-	while(socket_setup() != SOCKET_SETUP_SUCCESS);
-	//while( socket_flag == 0 )
-	//{
-		if( socket_connect() == SOCKET_CONNECT_SUCCESS )
-		{
-			socket_flag = 1;
+	if(socket_setup() != SOCKET_SETUP_SUCCESS){
+		perror("Error in setup of socket");
+	}
+	if( socket_connect() == SOCKET_CONNECT_SUCCESS )
+	{
+		socket_flag = 1;
+	}
 
-			while(socket_flag == 1)
+	else{
+		perror("Error in socket connect");
+
+	}
+	
+		while(socket_flag == 1)
+		{
+			memset(str,0,sizeof(str));
+			if((recv_stat = recv(sock_stat, str,sizeof(str),0) < 0))
 			{
-				memset(str,0,sizeof(str));
-				if((recv_stat = recv(sock_stat, str,sizeof(str),0) < 0))
-				{
-					perror("read error");
-					socket_flag = 0;
-					break;
-				}
+				perror("read error");
+				socket_flag = 0;
+				break;
+			}
+			else{
+
 
 				RxBuf[0] = str;
 
@@ -64,6 +72,15 @@ int server_establish()
 					/*call temp_read()*/
 					client_temperature_type_request = REQUEST_CELSIUS;
 					client_request.client_get_temp_flag = 1;
+					strcpy(client_data.sensor_string,"temp: ");
+					client_data.sensor_data = 26.0;
+
+					if((send(sock_stat,&client_data ,sizeof(client_data_t),0))<0){
+						perror("Error while sending temperature structure. Please try again!!");
+						client_request.client_get_temp_flag = 0;
+					} 
+
+
 				}
 
 				else if(strcmp(RxBuf[0],"request_light_val") == 0)
@@ -71,6 +88,13 @@ int server_establish()
 					printf("\n\rLight val func received ");
 					/*call light_val()*/
 					client_request.client_get_lux_flag = 1;
+					strcpy(client_data.sensor_string,"light: ");
+					client_data.sensor_data = 1533.0;
+
+					if((send(sock_stat,&client_data ,sizeof(client_data_t),0))<0){
+						perror("Error while sending light structure. Please try again!!");
+						client_request.client_get_lux_flag = 0;
+					} 
 				}
 
 				else if(strcmp(RxBuf[0],"request_sys_state") == 0)
@@ -84,9 +108,9 @@ int server_establish()
 				{
 					printf("Closing Socket \n");
 					socket_flag = 0;
-					close(socket_fd);	
+			//		close(socket_fd);	
 
-					break;
+					exit;
 				}
 
 				else 
@@ -94,10 +118,13 @@ int server_establish()
 					printf("Unrecognized command. Please try again!\n");
 				}	
 			}
-		//}
-	}
+		}
+
+	
 
 }
+
+
 
 
 
@@ -123,14 +150,9 @@ server_response_t socket_setup()
 		return SOCKET_FAIL;
 	}
 
-		if(setsockopt(socket_fd,SOL_SOCKET,SO_REUSEADDR,&sock_opt_true,sizeof(int)) == -1){
-		perror("Setsockopt");
-		return REUSE_FAIL;
-		}
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = INADDR_ANY;
 	server_addr.sin_port = htons(PORT_NUM);
-	socket_fd = socket(AF_INET, SOCK_STREAM,0);
 
 	if(bind(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)))
 	{
@@ -172,36 +194,3 @@ server_response_t socket_connect(void)
 
 
 
-/*Below signals not called now*/
-
-
-void sig_handler(int signo, siginfo_t *info, void *extra)
-{
-	sig_flag = 1;
-	// fptr = fopen(LOG_FILE_NAME, "a");
-	// fprintf(fptr, "Time - %ld", getMicrotime());
-	// fprintf(fptr, "SIG Detected, Exiting!\n");
-	// fclose(fptr);
-	close(socket_fd);
-	exit(0);
-}
-
-void set_sig_handler(void)
-{
-	struct sigaction action;
-	action.sa_flags = SA_SIGINFO; 
-
-	action.sa_sigaction = sig_handler;
-
-	if (sigaction(SIGINT, &action, NULL) == -1)
-	{ 
-		perror("sigusr: sigaction");
-		_exit(1);
-	}
-}
-
-long getMicrotime(){
-	struct timeval currentTime;
-	gettimeofday(&currentTime, NULL);
-	return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
-}
