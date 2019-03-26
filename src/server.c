@@ -61,9 +61,9 @@ int server_establish()
 		else{
 
 
-			RxBuf[0] = str;
+			//RxBuf[0] = str;
 
-			if(strcmp(RxBuf[0],"request_temp_data") == 0)
+			if(strcmp(str,"1") == 0)
 			{
 				printf("\n\rtemp func received ");
 				/*call temp_read()*/
@@ -82,7 +82,7 @@ int server_establish()
 
 			}
 
-			else if(strcmp(RxBuf[0],"request_light_val") == 0)
+			else if(strcmp(str,"2") == 0)
 			{
 				printf("\n\rLight val func received ");
 				/*call light_val()*/
@@ -99,14 +99,14 @@ int server_establish()
 				} 
 			}
 
-			else if(strcmp(RxBuf[0],"request_sys_state") == 0)
+			else if(strcmp(str,"3") == 0)
 			{
 				printf("System State func received \n");
 				/*System State func()*/
 				client_request.client_get_system_stat_flag =1;
 			}	
 
-			else if(strcmp(RxBuf[0],"close") == 0)
+			else if(strcmp(str,"6") == 0)
 			{
 				printf("Closing Socket \n");
 				socket_flag = 0;
