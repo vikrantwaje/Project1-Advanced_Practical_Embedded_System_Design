@@ -21,8 +21,8 @@
 /****************************************************************************************
 *				GLOBAL VARIABLE SECTION
 *****************************************************************************************/
-
-
+mqd_t mqdes_server;
+struct mq_attr attribute_server;
 
 /*******************************************************************************************
  * @brief Main function
@@ -45,6 +45,8 @@
 	}
 //	create_log_timer();
 //	create_heartbeat_timer();
+	open_message_queue_server(&mqdes_server, &attribute_server);
+
 	/* Socket thread creation*/
 	ret_status = pthread_create( &thread1, NULL, socket_thread,0);
 	if( ret_status )
@@ -107,6 +109,8 @@
 		fprintf( stderr, "logger thread not joined successfully, Error Code: %d\n", ret_status);
 	}
 	printf("Main Thread Exited Successfully \n");
+
+	close_message_queue_server(&mqdes_server);
 	return 0;
 }
 

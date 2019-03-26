@@ -29,7 +29,7 @@
 bool client_get_system_stat_flag;
 bool client_get_lux_flag;
 */
-
+mqd_t mqdes_server;
 client_request_t client_request;
 request_cmd_t client_temperature_type_request ;
 client_data_t client_data;
@@ -75,6 +75,9 @@ void *temperature_thread( void* arg){
 		//printf("\n\rTemperature data called from client: %lf",temperature_data);
 		strcpy(client_data.sensor_string,"Temperature value:");
 		client_data.sensor_data = temperature_data;	
+		if(mq_send(mqdes_server,(char *)&client_data,sizeof(client_data_t),0)==-1){
+			perror("Sending temperature value to server unsuccessfull");
+		}
 		client_request.client_get_temp_flag =0;
 		}
 	}
@@ -101,8 +104,13 @@ void *light_sensor_thread( void* arg){
 		//send message through queue to server task
 
 		lux_data = read_lux(); 
-		printf("\n\rLight data called from client:%lf",lux_data);
-	
+	//	printf("\n\rLight data called from client:%lf",lux_data);
+		strcpy(client_data.sensor_string,"Lux value:");
+		client_data.sensor_data = lux_data;	
+		if(mq_send(mqdes_server,(char *)&client_data,sizeof(client_data_t),0)==-1){
+			perror("Sending light value to server unsuccessfull");
+		}
+
 
 		client_request.client_get_lux_flag = 0;
 

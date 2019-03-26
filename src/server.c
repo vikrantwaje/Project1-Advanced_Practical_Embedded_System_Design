@@ -9,13 +9,11 @@
  * Reference[2]: https://www.youtube.com/watch?v=pFLQmnmDOo
  */
 
-//void set_sig_handler(void);
-//long getMicrotime();
 
 #include"server.h"
 #include"temp_sensor.h"
 
-
+mqd_t mqdes_server;
 client_request_t client_request;
 request_cmd_t client_temperature_type_request;
 client_data_t client_data;
@@ -31,7 +29,6 @@ client_data_t client_data;
  ********************************************************************************************/
 int server_establish()
 {
-	//set_sig_handler();
 
 	/*Server Thread*/
 	int recv_stat;
@@ -51,76 +48,81 @@ int server_establish()
 		perror("Error in socket connect");
 
 	}
-	
-		while(socket_flag == 1)
+
+	while(socket_flag == 1)
+	{
+		memset(str,0,sizeof(str));
+		if((recv_stat = recv(sock_stat, str,sizeof(str),0) < 0))
 		{
-			memset(str,0,sizeof(str));
-			if((recv_stat = recv(sock_stat, str,sizeof(str),0) < 0))
-			{
-				perror("read error");
-				socket_flag = 0;
-				break;
-			}
-			else{
-
-
-				RxBuf[0] = str;
-
-				if(strcmp(RxBuf[0],"request_temp_data") == 0)
-				{
-					printf("\n\rtemp func received ");
-					/*call temp_read()*/
-					client_temperature_type_request = REQUEST_CELSIUS;
-					client_request.client_get_temp_flag = 1;
-					strcpy(client_data.sensor_string,"temp: ");
-					client_data.sensor_data = 26.0;
-
-					if((send(sock_stat,&client_data ,sizeof(client_data_t),0))<0){
-						perror("Error while sending temperature structure. Please try again!!");
-						client_request.client_get_temp_flag = 0;
-					} 
-
-
-				}
-
-				else if(strcmp(RxBuf[0],"request_light_val") == 0)
-				{
-					printf("\n\rLight val func received ");
-					/*call light_val()*/
-					client_request.client_get_lux_flag = 1;
-					strcpy(client_data.sensor_string,"light: ");
-					client_data.sensor_data = 1533.0;
-
-					if((send(sock_stat,&client_data ,sizeof(client_data_t),0))<0){
-						perror("Error while sending light structure. Please try again!!");
-						client_request.client_get_lux_flag = 0;
-					} 
-				}
-
-				else if(strcmp(RxBuf[0],"request_sys_state") == 0)
-				{
-					printf("System State func received \n");
-					/*System State func()*/
-					client_request.client_get_system_stat_flag =1;
-				}	
-
-				else if(strcmp(RxBuf[0],"close") == 0)
-				{
-					printf("Closing Socket \n");
-					socket_flag = 0;
-			//		close(socket_fd);	
-
-					exit;
-				}
-
-				else 
-				{
-					printf("Unrecognized command. Please try again!\n");
-				}	
-			}
+			perror("read error");
+			socket_flag = 0;
+			break;
 		}
+		else{
 
-	
+
+			RxBuf[0] = str;
+
+			if(strcmp(RxBuf[0],"request_temp_data") == 0)
+			{
+				printf("\n\rtemp func received ");
+				/*call temp_read()*/
+				client_temperature_type_request = REQUEST_CELSIUS;
+				client_request.client_get_temp_flag = 1;
+				//	strcpy(client_data.sensor_string,"temp: ");
+				//	client_data.sensor_data = 26.0;
+				if(mq_receive(mqdes_server,(char *)&client_data,sizeof(client_data_t),NULL) ==-1){
+					perror("Reception of data from temperature thread unsuccessfull");	
+				}	
+				if((send(sock_stat,&client_data ,sizeof(client_data_t),0))<0){
+					perror("Error while sending temperature structure. Please try again!!");
+					client_request.client_get_temp_flag = 0;
+				} 
+
+
+			}
+
+			else if(strcmp(RxBuf[0],"request_light_val") == 0)
+			{
+				printf("\n\rLight val func received ");
+				/*call light_val()*/
+				client_request.client_get_lux_flag = 1;
+				//strcpy(client_data.sensor_string,"light: ");
+				//client_data.sensor_data = 1533.0;
+				if(mq_receive(mqdes_server,(char *)&client_data,sizeof(client_data_t),NULL) ==-1){
+					perror("Reception of data from light sensor thread unsuccessfull");	
+				}	
+
+				if((send(sock_stat,&client_data ,sizeof(client_data_t),0))<0){
+					perror("Error while sending light structure. Please try again!!");
+					client_request.client_get_lux_flag = 0;
+				} 
+			}
+
+			else if(strcmp(RxBuf[0],"request_sys_state") == 0)
+			{
+				printf("System State func received \n");
+				/*System State func()*/
+				client_request.client_get_system_stat_flag =1;
+			}	
+
+			else if(strcmp(RxBuf[0],"close") == 0)
+			{
+				printf("Closing Socket \n");
+				socket_flag = 0;
+				//		close(socket_fd);	
+
+				exit;
+			}
+
+			else 
+			{
+				printf("Unrecognized command. Please try again!\n");
+			}	
+		}
+	}
+
+
 
 }
 
