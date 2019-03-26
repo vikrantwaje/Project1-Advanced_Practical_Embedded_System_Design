@@ -45,6 +45,15 @@ struct mq_attr attribute_server;
 	}
 //	create_log_timer();
 //	create_heartbeat_timer();
+	led_init(RED_LED);
+	led_init(BLUE_LED);
+	led_init(GREEN_LED);
+	led_init(YELLOW_LED);
+
+
+
+
+
 	open_message_queue_server(&mqdes_server, &attribute_server);
 
 	/* Socket thread creation*/

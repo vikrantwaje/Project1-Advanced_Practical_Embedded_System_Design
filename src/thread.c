@@ -68,6 +68,7 @@ void *socket_thread( void* arg){
 void *temperature_thread( void* arg){
 	double temperature_data = 0; 
 	while(1){
+
 		temperature_data = get_temperature(client_temperature_type_request);
 		//sleep(1);
 		if(client_request.client_get_temp_flag == 1){
@@ -99,6 +100,8 @@ void *temperature_thread( void* arg){
 void *light_sensor_thread( void* arg){
 	double lux_data = 0;
 	while(1){
+	
+
 		//client_get_lux_flag = 1;
 		if(client_request.client_get_lux_flag == 1){
 		//send message through queue to server task

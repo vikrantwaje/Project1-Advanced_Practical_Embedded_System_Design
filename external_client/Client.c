@@ -61,8 +61,9 @@ int main()
 		printf("\"2.Request temperature sensor values in Kelvin \n");
 		printf("\"3.Request temperature sensor values in Fahrenheit\n");
 		printf("\"4.Request light sensor values \n");
-		printf("\"5.Request live system status \n");
-		printf("\"6.Close connection \n\n");
+		printf("\"5.Turn all LED ON \n");
+		printf("\"6.Turn all LED OFF \n");
+		printf("\"7.Close connection \n\n");
 
 	
 		printf("\n\rEnter command here: ");
@@ -70,14 +71,16 @@ int main()
 		scanf("\n%s", input_cmd);  //Blocking statement
 		send_data_len = send(socket_fd, &input_cmd, 17, 0);
 		printf("Command being sent = %s\n",input_cmd);
-		if(strcmp(input_cmd,"6") ==0 ){
+		if(strcmp(input_cmd,"7") ==0 ){
 			close(socket_fd);
 			printf("\n\rClosing socket");
 			break;
 		}
+		if(strcmp(input_cmd,"5")!=0 && strcmp(input_cmd,"6")!=0){
 		if(recv(socket_fd,&client_data,sizeof(client_data_t), 0)<0){
 			perror("Error in receiving structure for sensor. Try again!!");
 		}
+
 		else{
 			
 			printf("\n\r********************************************************************************\
@@ -89,6 +92,7 @@ int main()
 
 			printf("%s %lf\n\n\n\n\n\n\n\n\r",client_data.sensor_string,client_data.sensor_data);
 		}
+}
 
 
 

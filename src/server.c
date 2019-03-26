@@ -82,7 +82,7 @@ int server_establish()
 
 			}
 
-			else if(strcmp(str,"2") == 0)
+			else if(strcmp(str,"4") == 0)
 			{
 				printf("\n\rLight val func received ");
 				/*call light_val()*/
@@ -99,14 +99,28 @@ int server_establish()
 				} 
 			}
 
-			else if(strcmp(str,"3") == 0)
+			else if(strcmp(str,"5") == 0)
 			{
-				printf("System State func received \n");
+				printf("LED func received \n");
 				/*System State func()*/
-				client_request.client_get_system_stat_flag =1;
+				led_on(RED_LED);
+				led_on(YELLOW_LED);
+				led_on(BLUE_LED);
+				led_on(GREEN_LED);
 			}	
 
 			else if(strcmp(str,"6") == 0)
+			{
+				printf("LED func received \n");
+				/*System State func()*/
+				led_off(RED_LED);
+				led_off(YELLOW_LED);
+				led_off(BLUE_LED);
+				led_off(GREEN_LED);
+			}
+
+
+			else if(strcmp(str,"7") == 0)
 			{
 				printf("Closing Socket \n");
 				socket_flag = 0;

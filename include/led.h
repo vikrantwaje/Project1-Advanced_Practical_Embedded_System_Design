@@ -1,5 +1,5 @@
 /********************************************************************************************
-*					FILENAME: main.h
+*					FILENAME: led.h
 **********************************************************************************************/
 /*
  * Author: Tanmay Chaturvedi, Vikrant Waje
@@ -15,22 +15,19 @@
 /****************************************************************************************
 *					HEADER FILE SECTION
 *****************************************************************************************/
-#ifndef SRC_MAIN_H_
-#define SRC_MAIN_H_
+#ifndef LED_H_
+#define LED_H_
 
-#include "thread.h"
-#include"timer.h"
-#include"temp_sensor.h"
-#include"light_sensor.h"
-#include"logger.h"
-#include"synchronization.h"
-#include"server.h"
-#include"ipc.h"
-#include"led.h"
+#include <stdio.h>
+#include<string.h>
+#include<stdint.h>
 /**************************************************************************************
 *					     MACROS
 ****************************************************************************************/
-
+#define RED_LED  ("49")
+#define BLUE_LED ("117")
+#define GREEN_LED ("115")
+#define YELLOW_LED ("44")
 /**************************************************************************************
 *					GLOBAL VARIABLES
 ****************************************************************************************/
@@ -40,5 +37,41 @@
 ***************************************************************************************/
 
 
+/*******************************************************************************************
+ * @brief Initialise LED gpio pins
+ *
+ * Initialise GPIO pins as output
+ *
+ * @param gpio_pin: GPIO pin whose direction is to be set
+ *
+ * @return null
+ ********************************************************************************************/
 
-#endif /* SRC_MAIN_H_ */
+void led_init(uint8_t gpio_pin[]);
+
+
+/*******************************************************************************************
+ * @brief Turn ON the led
+ *
+ * Turn the given LED ON, i.e output logic 1
+ *
+ * @param gpio_pin: GPIO pin which is to be turned ON
+ *
+ * @return null
+ ********************************************************************************************/
+
+void led_on(uint8_t gpio_pin[]);
+
+
+/*******************************************************************************************
+ * @brief Turn OFF the led
+ *
+ * Turn the given LED OFF, i.e output logic 0
+ *
+ * @param gpio_pin: GPIO pin which is to be turned OFF
+ *
+ * @return null
+ ********************************************************************************************/
+void led_off(uint8_t gpio_pin[]);
+
+#endif /*LED_H*/	
