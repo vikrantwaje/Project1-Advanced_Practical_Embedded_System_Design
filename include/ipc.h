@@ -3,14 +3,13 @@
 /********************************************************************************************
 *					FILENAME: ipc.h
 **********************************************************************************************/
-/*
+/* Title: ipc.h
+ * Brief: Responsible for implementing various helper function that helps in setting up interthread communication 
  * Author: Tanmay Chaturvedi, Vikrant Waje
  * Date Created: March 16, 2019
  * Course: Advanced Embedded Software Development
  * Project: 1
-
- * Reference[1]: http://www.it.uom.gr/teaching/distrubutedSite/dsIdaLiu/labs/lab2_1/sockets.html
- * Reference[2]: Based on code from https://riptutorial.com/posix/example/16306/posix-timer-with-sigev-thread-notification
+ *
  * 
  * 
  * */

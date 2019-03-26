@@ -1,14 +1,14 @@
 /********************************************************************************************
 *					FILENAME:temp_sensor.c
 **********************************************************************************************/
-/*
+/* Title: temp_sensor.c
+ * Brief: Responsible for providing various helper function needed to communicate with temperature sensor
  * Author: Tanmay Chaturvedi, Vikrant Waje
  * Date Created: March 16, 2019
  * Course: Advanced Embedded Software Development
  * Project: 1
 
- * Reference[1]: http://www.it.uom.gr/teaching/distrubutedSite/dsIdaLiu/labs/lab2_1/sockets.html
- * Reference[2]: Based on code from https://riptutorial.com/posix/example/16306/posix-timer-with-sigev-thread-notification
+ * Reference[1]: http://www.sparkfun.com/products/13314
  * 
  * 
  * */
@@ -23,6 +23,8 @@
 *******************************************************************************************/
 const char *temp_i2c_path_name = "/dev/i2c-2";
 pthread_mutex_t i2c_mutex;
+
+
 /**********************************************************************************
 *				FUNCTION DEFINITION
 ***************************************************************************************/

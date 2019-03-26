@@ -3,17 +3,18 @@
 /********************************************************************************************
 *					FILENAME: server.h
 **********************************************************************************************/
-/*
+/* Title: server.h
+ * Brief: Responsible for providing various helper functions for setting up the server side
  * Author: Tanmay Chaturvedi, Vikrant Waje
- * Date Created: March 16, 2019
+ * Date Created: March 10, 2019
  * Course: Advanced Embedded Software Development
- * Project: 1
-
+ * 
+ * This program demonsrates IPC using Sockets for Project 1.
+ * This is the Server Side.
  * Reference[1]: http://www.it.uom.gr/teaching/distrubutedSite/dsIdaLiu/labs/lab2_1/sockets.html
- * Reference[2]: Based on code from https://riptutorial.com/posix/example/16306/posix-timer-with-sigev-thread-notification
- * 
- * 
- * */
+ * Reference[2]: https://www.youtube.com/watch?v=pFLQmnmDOo
+ */
+
 /****************************************************************************************
 *					HEADER FILE SECTION
 *****************************************************************************************/

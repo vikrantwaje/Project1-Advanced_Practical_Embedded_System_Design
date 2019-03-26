@@ -1,14 +1,13 @@
 /********************************************************************************************
  *					FILENAME: ipc.c
  **********************************************************************************************/
-/*
+/* Title: ipc.c
+ * Brief: Responsible for implementing various helper function that helps in setting up interthread communication 
  * Author: Tanmay Chaturvedi, Vikrant Waje
  * Date Created: March 16, 2019
  * Course: Advanced Embedded Software Development
  * Project: 1
-
- * Reference[1]: http://www.it.uom.gr/teaching/distrubutedSite/dsIdaLiu/labs/lab2_1/sockets.html
- * Reference[2]: Based on code from https://riptutorial.com/posix/example/16306/posix-timer-with-sigev-thread-notification
+ *
  * 
  * 
  * */
@@ -33,6 +32,16 @@
  *					     FUNCTION DEFINITION
  ****************************************************************************************/
 
+/*******************************************************************************************
+ * @brief Open message queue for server
+ *
+ * Initialises a message queue that can be used to transfer sensor values to server when client requests it
+ *
+ * @param mqdes: Message queue descriptor
+ * @param attribute: Attribute of message queue 
+ *
+ * @return null
+ ********************************************************************************************/
 
 void open_message_queue_server(mqd_t *mqdes, struct mq_attr * attribute){
 	attribute->mq_maxmsg= 10;
@@ -43,6 +52,18 @@ void open_message_queue_server(mqd_t *mqdes, struct mq_attr * attribute){
 
 	}
 }
+
+
+/*******************************************************************************************
+ * @brief Close message queue for server
+ *
+ * Unlinks and Closes  message queue that was used to transfer sensor values to server when client requests it
+ *
+ * @param mqdes: Message queue descriptor
+ * @param attribute: Attribute of message queue 
+ *
+ * @return null
+ ********************************************************************************************/
 
 
 void close_message_queue_server(mqd_t *mqdes){

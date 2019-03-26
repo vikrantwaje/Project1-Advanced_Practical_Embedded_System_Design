@@ -1,4 +1,9 @@
-/*
+/*********************************************************************************************
+*					FILENAME: server.c
+**********************************************************************************************/
+
+/* Title: server.c
+ * Brief: Responsible for providing various helper functions for setting up the server side
  * Author: Tanmay Chaturvedi, Vikrant Waje
  * Date Created: March 10, 2019
  * Course: Advanced Embedded Software Development
@@ -9,14 +14,24 @@
  * Reference[2]: https://www.youtube.com/watch?v=pFLQmnmDOo
  */
 
-
+/*********************************************************************************************
+*					HEADER SECTION
+**********************************************************************************************/
 #include"server.h"
 #include"temp_sensor.h"
 
+/********************************************************************************************
+*					GLOBAL VARIABLE SECTION
+*********************************************************************************************/
 mqd_t mqdes_server;
 client_request_t client_request;
 request_cmd_t client_temperature_type_request;
 client_data_t client_data;
+
+
+/******************************************************************************************
+*					FUNCTION DEFINITION
+********************************************************************************************/
 /*******************************************************************************************
  * @brief Communicate with external client
  *
