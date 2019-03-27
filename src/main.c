@@ -21,7 +21,8 @@
 *****************************************************************************************/
 mqd_t mqdes_server;
 struct mq_attr attribute_server;
-
+mqd_t mqdes_logger;
+struct mq_attr attribute_logger;
 /*******************************************************************************************
  * @brief Main function
  *
@@ -34,14 +35,13 @@ struct mq_attr attribute_server;
  int main()
 {
 	pthread_t thread1, thread2, thread3, thread4;
-	double timestamp;
 	int ret_status;
 	sensor_status_t stat;
 	stat=light_sensor_power_on();
 	if(stat !=WRITE_REG_SUCCESS){
 	perror("Power ON of light sensor failed");
 	}
-//	create_log_timer();
+	create_log_timer();
 //	create_heartbeat_timer();
 	led_init(RED_LED);
 	led_init(BLUE_LED);
@@ -53,7 +53,7 @@ struct mq_attr attribute_server;
 
 
 	open_message_queue_server(&mqdes_server, &attribute_server);
-
+	open_message_queue_logger(&mqdes_logger,&attribute_logger);
 	/* Socket thread creation*/
 	ret_status = pthread_create( &thread1, NULL, socket_thread,0);
 	if( ret_status )
@@ -78,11 +78,7 @@ struct mq_attr attribute_server;
 		return 0;
 	}
 
-	timestamp=record_time();
 
-	FILE *fptr = fopen("log.txt","a+");
-	LOG(timestamp);
-	fclose(fptr);
 
 	/*logger thread creation*/
 	ret_status = pthread_create( &thread4, NULL, logger_thread,0);
@@ -118,6 +114,7 @@ struct mq_attr attribute_server;
 	printf("Main Thread Exited Successfully \n");
 
 	close_message_queue_server(&mqdes_server);
+	close_message_queue_logger(&mqdes_logger);
 	return 0;
 }
 

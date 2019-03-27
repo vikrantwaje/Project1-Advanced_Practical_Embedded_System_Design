@@ -24,13 +24,17 @@
  *					     GLOBAL VARIABLES
  ****************************************************************************************/
 /*bool client_get_temp_flag;
-bool client_get_system_stat_flag;
-bool client_get_lux_flag;
-*/
+  bool client_get_system_stat_flag;
+  bool client_get_lux_flag;
+ */
 mqd_t mqdes_server;
 client_request_t client_request;
 request_cmd_t client_temperature_type_request ;
 client_data_t client_data;
+logger_flag_t logger_flag;
+log_t log_temp_data_src;
+log_t log_light_data_src;
+pthread_mutex_t logger_queue_mutex;
 /**************************************************************************************
  *					FUNCTION DEFINITION
  ***************************************************************************************/
@@ -70,14 +74,29 @@ void *temperature_thread( void* arg){
 		temperature_data = get_temperature(client_temperature_type_request);
 		//sleep(1);
 		if(client_request.client_get_temp_flag == 1){
-	//send message through queue to server task
-		//printf("\n\rTemperature data called from client: %lf",temperature_data);
-		strcpy(client_data.sensor_string,"Temperature value:");
-		client_data.sensor_data = temperature_data;	
-		if(mq_send(mqdes_server,(char *)&client_data,sizeof(client_data_t),0)==-1){
-			perror("Sending temperature value to server unsuccessfull");
+			//send message through queue to server task
+			//printf("\n\rTemperature data called from client: %lf",temperature_data);
+			strcpy(client_data.sensor_string,"Temperature value:");
+			client_data.sensor_data = temperature_data;	
+			if(mq_send(mqdes_server,(char *)&client_data,sizeof(client_data_t),0)==-1){
+				perror("Sending temperature value to server unsuccessfull");
+			}
+			client_request.client_get_temp_flag =0;
 		}
-		client_request.client_get_temp_flag =0;
+		if(logger_flag.log_temp_sensor_flag == 1){
+			log_temp_data_src.timestamp = record_time(); 
+			log_temp_data_src.log_level = 1;
+			strcpy(log_temp_data_src.source_ID,"Temp value:");
+			log_temp_data_src.sensor_data = temperature_data;	
+			pthread_mutex_lock(&logger_queue_mutex);
+			if(mq_send(mqdes_logger,(char *)&log_temp_data_src,sizeof(log_t),0)==-1){
+				perror("Sending temperature value to logger unsuccessfull");
+			}
+			pthread_mutex_unlock(&logger_queue_mutex);
+
+			logger_flag.log_temp_sensor_flag =0;
+				
+
 		}
 	}
 }
@@ -98,24 +117,40 @@ void *temperature_thread( void* arg){
 void *light_sensor_thread( void* arg){
 	double lux_data = 0;
 	while(1){
+
 	
+		lux_data = read_lux(); 
 
 		//client_get_lux_flag = 1;
 		if(client_request.client_get_lux_flag == 1){
-		//send message through queue to server task
+			//send message through queue to server task
 
-		lux_data = read_lux(); 
-	//	printf("\n\rLight data called from client:%lf",lux_data);
-		strcpy(client_data.sensor_string,"Lux value:");
-		client_data.sensor_data = lux_data;	
-		if(mq_send(mqdes_server,(char *)&client_data,sizeof(client_data_t),0)==-1){
-			perror("Sending light value to server unsuccessfull");
+			//	printf("\n\rLight data called from client:%lf",lux_data);
+			strcpy(client_data.sensor_string,"Lux value:");
+			client_data.sensor_data = lux_data;	
+			if(mq_send(mqdes_server,(char *)&client_data,sizeof(client_data_t),0)==-1){
+				perror("Sending light value to server unsuccessfull");
+			}
+
+
+			client_request.client_get_lux_flag = 0;
+
+		}
+		if(logger_flag.log_light_sensor_flag == 1){
+			log_light_data_src.timestamp = record_time(); 
+			log_light_data_src.log_level = 2;
+			strcpy(log_light_data_src.source_ID,"Light value:");
+			log_light_data_src.sensor_data = lux_data;	
+			pthread_mutex_lock(&logger_queue_mutex);
+			if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
+				perror("Sending light value to logger unsuccessfull");
+			}
+			logger_flag.log_light_sensor_flag =0;
+			pthread_mutex_unlock(&logger_queue_mutex);
+
+
 		}
 
-
-		client_request.client_get_lux_flag = 0;
-
-}
 	}
 
 }
@@ -135,9 +170,22 @@ void *light_sensor_thread( void* arg){
  *********************************************************************************************/
 
 void *logger_thread( void* arg){
-/*	while(1)
-	printf("\n\rHi from logger thread");
-*/}
+	log_t log_temp_data;
+	FILE *log_file = NULL;
+	while(1){
+	//	pthread_mutex_lock(&logger_queue_mutex);
+		if(mq_receive(mqdes_logger,(char *)&log_temp_data,sizeof(log_t),NULL) ==-1){
+			perror("Reception of data from temp sensor thread unsuccessfull");	
+		}
+		log_file = fopen("log.txt","a+");
+	//	printf("\n\r[%lf] [%d] [%s] [%lf]",log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
+	//	pthread_mutex_unlock(&logger_queue_mutex);
+			
+	 LOG(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
+		fclose(log_file);
+	
+}
+}
 
 
 

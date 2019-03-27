@@ -26,5 +26,5 @@
 *				GLOBAL VARIABLES
 ****************************************************************************************/
 extern pthread_mutex_t i2c_mutex;
-
+extern pthread_mutex_t logger_queue_mutex;
 #endif //SYNCHRONIZATION_H

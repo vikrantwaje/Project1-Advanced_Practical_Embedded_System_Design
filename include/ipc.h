@@ -25,6 +25,7 @@
 #include<signal.h>
 #include<string.h>
 #include<stdio.h>
+#include"logger.h"
 /***************************************************************************************
 *					MACROS AND ENUMS
 ***************************************************************************/
@@ -38,12 +39,14 @@ typedef struct{
 *					GLOBAL VARIABLES
 *******************************************************************************************/
 extern mqd_t mqdes_server;
-
+extern mqd_t mqdes_logger;
 /*******************************************************************************************
 *					FUNCTION DEFINITION
 *******************************************************************************************/
 
 void open_message_queue_server(mqd_t *mqdes, struct mq_attr * attribute);
 void close_message_queue_server(mqd_t *mqdes);
+void open_message_queue_logger(mqd_t *mqdes, struct mq_attr * attribute);
+void close_message_queue_logger(mqd_t *mqdes);
 
 #endif //SRC_IPC_H

@@ -30,10 +30,9 @@
 
 /**************************************************************************************
  *					     FUNCTION DEFINITION
- ****************************************************************************************/
+/ ****************************************************************************************/
 
-/*******************************************************************************************
- * @brief Open message queue for server
+ /* @brief Open message queue for server
  *
  * Initialises a message queue that can be used to transfer sensor values to server when client requests it
  *
@@ -76,3 +75,49 @@ void close_message_queue_server(mqd_t *mqdes){
 	}
 
 }
+
+/******************************************************************************************
+ * @brief Open message queue for logger
+ *
+ * Initialises a message queue that can be used to transfer logs periodically to logger task
+ *
+ * @param mqdes: Message queue descriptor
+ * @param attribute: Attribute of message queue 
+ *
+ * @return null
+ ********************************************************************************************/
+
+void open_message_queue_logger(mqd_t *mqdes, struct mq_attr * attribute){
+	attribute->mq_maxmsg= 10;
+	attribute->mq_msgsize = sizeof(log_t);
+	*mqdes = mq_open("/msgqueue2",O_CREAT|O_RDWR,0666,attribute); 
+	if(*mqdes == -1){
+		perror("Failed to open message queue for logger");
+
+	}
+}
+
+/*******************************************************************************************
+ * @brief Close message queue for logger
+ *
+ * Unlinks and Closes  message queue that was used to transfer sensor values to logger task periodically
+ *
+ * @param mqdes: Message queue descriptor
+ * @param attribute: Attribute of message queue 
+ *
+ * @return null
+ ********************************************************************************************/
+
+
+void close_message_queue_logger(mqd_t *mqdes){
+	if(mq_close(*mqdes)==-1){
+		perror("Message queue for logger failed to close");
+	}
+
+	if(mq_unlink("/msgqueue2")<0){
+		perror("Message queue for server failed to unlinked");
+	}
+
+}
+
+

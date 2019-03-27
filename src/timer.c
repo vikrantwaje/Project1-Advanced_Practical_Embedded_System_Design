@@ -21,7 +21,7 @@
 *****************************************************************************************/
 int log_timer_flag;
 int heartbeat_timer_flag;
-
+logger_flag_t logger_flag;
 /***************************************************************************************
 *				FUNCTION DEFINITION
 *****************************************************************************************/
@@ -35,8 +35,10 @@ int heartbeat_timer_flag;
  *********************************************************************************************/
 void log_timer_handler(int num){
 
-	log_timer_flag = 1;
-	printf("\n\rHi logger");
+	//log_timer_flag = 1;
+	logger_flag.log_temp_sensor_flag =1;
+	logger_flag.log_light_sensor_flag =1;
+	printf("\n\rlogger");
 }
 /***********************************************************************************************
  * @brief heartbeat timer handler
@@ -67,8 +69,8 @@ bool create_log_timer(){
 	timer_create(CLOCK_REALTIME,&signal_specification,&log_timer_id);
 	timer_setting.it_value.tv_sec =1;
 	timer_setting.it_value.tv_nsec = 0;
-	timer_setting.it_interval.tv_sec = 0;
-	timer_setting.it_interval.tv_nsec = 100000000;
+	timer_setting.it_interval.tv_sec = 1;
+	timer_setting.it_interval.tv_nsec = 0;
 	timer_settime(log_timer_id,0,&timer_setting,NULL);
 	return 0;
 }
