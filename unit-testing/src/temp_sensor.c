@@ -60,8 +60,7 @@ sensor_status_t write_ptr_reg(uint8_t address){
 	return WRITE_REG_SUCCESS;
 }
 
-/*********************************************************************************************** 
- * @brief write register in temperature register
+/***********************************************************************************************  * @brief write register in temperature register
  *
  *Responsible for writing into  register of temperature sensor TMP102
  *
@@ -100,8 +99,7 @@ sensor_status_t temperature_write_reg(uint8_t address, uint16_t data){
 	return WRITE_REG_SUCCESS;
 }
 
-/***********************************************************************************************  
- * @brief Read register in temperature register
+/***********************************************************************************************  * @brief Read register in temperature register
  *
  *Responsible for reading from  register of temperature sensor TMP102
  *
@@ -175,8 +173,7 @@ sensor_status_t temperature_read_reg(uint8_t address, uint8_t *data,reg_read_cmd
 	return READ_REG_SUCCESS;
 
 }
-/*********************************************************************************************** 
- * @brief Get temperature
+/***********************************************************************************************  * @brief Get temperature
  *
  * Read the value from temperature register
  *
