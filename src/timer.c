@@ -20,8 +20,8 @@
 *				GLOBAL VARIABLE SECTION
 *****************************************************************************************/
 int log_timer_flag;
-int heartbeat_timer_flag;
 logger_flag_t logger_flag;
+heartbeat_flag_t heartbeat_flag;
 /***************************************************************************************
 *				FUNCTION DEFINITION
 *****************************************************************************************/
@@ -50,7 +50,8 @@ void log_timer_handler(int num){
  *********************************************************************************************/
 void heartbeat_timer_handler(int num){
 
-	heartbeat_timer_flag = 1;
+	heartbeat_flag.heartbeat_temp_sensor_flag = 1;
+	heartbeat_flag.heartbeat_light_sensor_flag = 1;
 	printf("\n\rHi heartbeat");
 }
 /***********************************************************************************************
@@ -69,7 +70,7 @@ bool create_log_timer(){
 	timer_create(CLOCK_REALTIME,&signal_specification,&log_timer_id);
 	timer_setting.it_value.tv_sec =1;
 	timer_setting.it_value.tv_nsec = 0;
-	timer_setting.it_interval.tv_sec = 1;
+	timer_setting.it_interval.tv_sec = 5;
 	timer_setting.it_interval.tv_nsec = 0;
 	timer_settime(log_timer_id,0,&timer_setting,NULL);
 	return 0;
@@ -91,8 +92,8 @@ bool create_heartbeat_timer(){
 	timer_create(CLOCK_REALTIME,&signal_specification,&heartbeat_timer_id);
 	timer_setting.it_value.tv_sec =1;
 	timer_setting.it_value.tv_nsec = 0;
-	timer_setting.it_interval.tv_sec = 0;
-	timer_setting.it_interval.tv_nsec = 50000000;
+	timer_setting.it_interval.tv_sec = 3;
+	timer_setting.it_interval.tv_nsec = 0;
 	timer_settime(heartbeat_timer_id,0,&timer_setting,NULL);
 	return 0;
 }

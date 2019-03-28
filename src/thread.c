@@ -31,10 +31,18 @@ mqd_t mqdes_server;
 client_request_t client_request;
 request_cmd_t client_temperature_type_request ;
 client_data_t client_data;
+
+mqd_t mqdes_logger;
 logger_flag_t logger_flag;
 log_t log_temp_data_src;
 log_t log_light_data_src;
 pthread_mutex_t logger_queue_mutex;
+
+mqd_t mqdes_heartbeat;
+heartbeat_flag_t heartbeat_flag;
+heartbeat_data_t heartbeat_temp_data_src;
+heartbeat_data_t heartbeat_light_data_src;
+pthread_mutex_t heartbeat_queue_mutex;
 /**************************************************************************************
  *					FUNCTION DEFINITION
  ***************************************************************************************/
@@ -95,9 +103,26 @@ void *temperature_thread( void* arg){
 			pthread_mutex_unlock(&logger_queue_mutex);
 
 			logger_flag.log_temp_sensor_flag =0;
-				
+
 
 		}
+
+		if(heartbeat_flag.heartbeat_temp_sensor_flag == 1){
+			heartbeat_temp_data_src.timestamp = record_time(); 
+			heartbeat_temp_data_src.log_level = 1;
+			strcpy(heartbeat_temp_data_src.source_ID,"Temp sensor alive:");
+			heartbeat_temp_data_src.sensor_data = temperature_data;	
+			pthread_mutex_lock(&heartbeat_queue_mutex);
+			if(mq_send(mqdes_heartbeat,(char *)&heartbeat_temp_data_src,sizeof(heartbeat_data_t),0)==-1){
+				perror("Sending temperature value to main unsuccessfull");
+			}
+			pthread_mutex_unlock(&heartbeat_queue_mutex);
+
+			heartbeat_flag.heartbeat_temp_sensor_flag =0;
+
+
+		}
+
 	}
 }
 
@@ -118,7 +143,7 @@ void *light_sensor_thread( void* arg){
 	double lux_data = 0;
 	while(1){
 
-	
+
 		lux_data = read_lux(); 
 
 		//client_get_lux_flag = 1;
@@ -151,6 +176,23 @@ void *light_sensor_thread( void* arg){
 
 		}
 
+	if(heartbeat_flag.heartbeat_light_sensor_flag == 1){
+			heartbeat_light_data_src.timestamp = record_time(); 
+			heartbeat_light_data_src.log_level = 2;
+			strcpy(heartbeat_light_data_src.source_ID,"Light sensor alive:");
+			heartbeat_light_data_src.sensor_data = lux_data;	
+			pthread_mutex_lock(&heartbeat_queue_mutex);
+			if(mq_send(mqdes_heartbeat,(char *)&heartbeat_light_data_src,sizeof(heartbeat_data_t),0)==-1){
+				perror("Sending light value to main unsuccessfull");
+			}
+			pthread_mutex_unlock(&heartbeat_queue_mutex);
+
+			heartbeat_flag.heartbeat_light_sensor_flag =0;
+
+
+		}
+
+
 	}
 
 }
@@ -173,18 +215,18 @@ void *logger_thread( void* arg){
 	log_t log_temp_data;
 	FILE *log_file = NULL;
 	while(1){
-	//	pthread_mutex_lock(&logger_queue_mutex);
+		//	pthread_mutex_lock(&logger_queue_mutex);
 		if(mq_receive(mqdes_logger,(char *)&log_temp_data,sizeof(log_t),NULL) ==-1){
 			perror("Reception of data from temp sensor thread unsuccessfull");	
 		}
 		log_file = fopen("log.txt","a+");
-	//	printf("\n\r[%lf] [%d] [%s] [%lf]",log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
-	//	pthread_mutex_unlock(&logger_queue_mutex);
-			
-	 LOG(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
+		//	printf("\n\r[%lf] [%d] [%s] [%lf]",log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
+		//	pthread_mutex_unlock(&logger_queue_mutex);
+
+		LOG(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
 		fclose(log_file);
-	
-}
+
+	}
 }
 
 

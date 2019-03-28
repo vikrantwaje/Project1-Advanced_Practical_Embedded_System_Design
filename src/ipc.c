@@ -115,7 +115,53 @@ void close_message_queue_logger(mqd_t *mqdes){
 	}
 
 	if(mq_unlink("/msgqueue2")<0){
-		perror("Message queue for server failed to unlinked");
+		perror("Message queue for logger failed to unlinked");
+	}
+
+}
+
+/***************************************************************************************
+
+ * @brief Open message queue for logging heartbeat to main task
+ *
+ * Initialises a message queue that can be used to transfer keep alive notification to main task
+ *
+ * @param mqdes: Message queue descriptor
+ * @param attribute: Attribute of message queue 
+ *
+ * @return null
+ ********************************************************************************************/
+
+void open_message_queue_heartbeat(mqd_t *mqdes, struct mq_attr * attribute){
+	attribute->mq_maxmsg= 10;
+	attribute->mq_msgsize = sizeof(heartbeat_data_t);
+	*mqdes = mq_open("/msgqueue3",O_CREAT|O_RDWR,0666,attribute); 
+	if(*mqdes == -1){
+		perror("Failed to open message queue for logging heartbeat");
+
+	}
+}
+
+
+/*******************************************************************************************
+ * @brief Close message queue for logger
+ *
+ * Unlinks and Closes  message queue that was used to transfer sensor values to logger task periodically
+ *
+ * @param mqdes: Message queue descriptor
+ * @param attribute: Attribute of message queue 
+ *
+ * @return null
+ ********************************************************************************************/
+
+
+void close_message_queue_heartbeat(mqd_t *mqdes){
+	if(mq_close(*mqdes)==-1){
+		perror("Message queue for heartbeat failed to close");
+	}
+
+	if(mq_unlink("/msgqueue3")<0){
+		perror("Message queue for heartbeat failed to unlinked");
 	}
 
 }

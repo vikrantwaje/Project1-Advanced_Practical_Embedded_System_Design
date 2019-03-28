@@ -23,6 +23,9 @@ mqd_t mqdes_server;
 struct mq_attr attribute_server;
 mqd_t mqdes_logger;
 struct mq_attr attribute_logger;
+mqd_t mqdes_heartbeat;
+struct mq_attr attribute_heartbeat;
+
 /*******************************************************************************************
  * @brief Main function
  *
@@ -36,13 +39,14 @@ struct mq_attr attribute_logger;
 {
 	pthread_t thread1, thread2, thread3, thread4;
 	int ret_status;
+	heartbeat_data_t heartbeat_temp_data;
 	sensor_status_t stat;
 	stat=light_sensor_power_on();
 	if(stat !=WRITE_REG_SUCCESS){
 	perror("Power ON of light sensor failed");
 	}
 	create_log_timer();
-//	create_heartbeat_timer();
+	create_heartbeat_timer();
 	led_init(RED_LED);
 	led_init(BLUE_LED);
 	led_init(GREEN_LED);
@@ -54,6 +58,8 @@ struct mq_attr attribute_logger;
 
 	open_message_queue_server(&mqdes_server, &attribute_server);
 	open_message_queue_logger(&mqdes_logger,&attribute_logger);
+	open_message_queue_heartbeat(&mqdes_heartbeat,&attribute_heartbeat);
+
 	/* Socket thread creation*/
 	ret_status = pthread_create( &thread1, NULL, socket_thread,0);
 	if( ret_status )
@@ -88,6 +94,17 @@ struct mq_attr attribute_logger;
 		fprintf( stderr, "logger_thread not created, Error Code: %d\n", ret_status);
 		return 0;
 	}
+	
+while(1){
+		
+		if(mq_receive(mqdes_heartbeat,(char *)&heartbeat_temp_data,sizeof(heartbeat_data_t),NULL) ==-1){
+			perror("Reception of data from temp sensor thread unsuccessfull");	
+		}
+
+			printf("\n\r[%lf] [%d] [%s] [%lf]",heartbeat_temp_data.timestamp,heartbeat_temp_data.log_level,heartbeat_temp_data.source_ID,heartbeat_temp_data.sensor_data);
+		
+
+	}
 
 	/*Socket thread join*/
 	ret_status = pthread_join( thread1, NULL);
@@ -115,6 +132,7 @@ struct mq_attr attribute_logger;
 
 	close_message_queue_server(&mqdes_server);
 	close_message_queue_logger(&mqdes_logger);
+	close_message_queue_heartbeat(&mqdes_heartbeat);
 	return 0;
 }
 

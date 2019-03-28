@@ -26,6 +26,8 @@
 #include<string.h>
 #include<stdio.h>
 #include"logger.h"
+#include"heartbeat.h"
+
 /***************************************************************************************
 *					MACROS AND ENUMS
 ***************************************************************************/
@@ -40,6 +42,7 @@ typedef struct{
 *******************************************************************************************/
 extern mqd_t mqdes_server;
 extern mqd_t mqdes_logger;
+extern mqd_t mqdes_heartbeat;
 /*******************************************************************************************
 *					FUNCTION DEFINITION
 *******************************************************************************************/
@@ -48,5 +51,7 @@ void open_message_queue_server(mqd_t *mqdes, struct mq_attr * attribute);
 void close_message_queue_server(mqd_t *mqdes);
 void open_message_queue_logger(mqd_t *mqdes, struct mq_attr * attribute);
 void close_message_queue_logger(mqd_t *mqdes);
+void open_message_queue_heartbeat(mqd_t *mqdes, struct mq_attr * attribute);
+void close_message_queue_heartbeat(mqd_t *mqdes);
 
 #endif //SRC_IPC_H
