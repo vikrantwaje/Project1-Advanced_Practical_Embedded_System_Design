@@ -148,4 +148,84 @@ double get_Tlow(request_cmd_t request);
 
 double get_Thigh(request_cmd_t request);
 
+
+/*********************************************************************************************** 
+ * @brief set sensor in shutdown mode
+ *
+ * set the configuration register in shutdown mode
+ *
+ * @param :data: To be set in shutdown mode or not
+ * @return :null
+ *********************************************************************************************/
+
+
+void configure_temp_shutdown(uint16_t data);
+
+
+/*********************************************************************************************** 
+ * @brief Read fault bits from configuration register
+ *
+ *  Read fault bits
+ *
+ * @param :null
+ * @return :uint8_t
+ *********************************************************************************************/
+
+
+uint8_t read_temp_fault();
+
+
+/*********************************************************************************************** 
+ * @brief set sensor in EM mode
+ *
+ * set the configuration register in EM mode
+ *
+ * @param :data: To be set in EM mode or not
+ * @return :null
+ *********************************************************************************************/
+
+
+void configure_temp_EMmode(uint16_t data);
+
+
+/*********************************************************************************************** 
+ * @brief Read EM mode from configuration register
+ *
+ *  Read Em mode bits
+ *
+ * @param :null
+ * @return :uint8_t
+ *********************************************************************************************/
+
+
+uint8_t read_temp_EM();
+
+
+/*********************************************************************************************** 
+ * @brief set sensor conversion rate
+ *
+ * set the conversion rate of temperature sensor
+ *
+ * @param :data: Set the conversion rate
+ * @return :null
+ *********************************************************************************************/
+
+
+void configure_temp_conversion_rate(uint16_t data);
+
+
+/*********************************************************************************************** 
+ * @brief Read conversion rate from configuration register
+ *
+ *  Read Conversion rate
+ *
+ * @param :null
+ * @return :uint8_t
+ *********************************************************************************************/
+
+
+uint8_t read_temp_conversion();
+
+
+
 #endif	//SRC_TEMP_H_
