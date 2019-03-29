@@ -72,7 +72,12 @@ void built_in_self_test(){
 		if((*(data) & 0x03)!=0x02 && ret_status!=READ_REG_SUCCESS){
 		printf("\n\rTemperature sensor initialisation failed. Incorrect conversion rate bit value data =%x",*data);
 		}		
-	
+		
+		
+		ret_status = read_temp_sensor_resolution(data);
+		if((*(data) & 0x03)!=0x03 && ret_status!=READ_REG_SUCCESS){
+		printf("\n\rTemperature sensor initialisation failed. Incorrect sensor resolution bit value data =%x",*data);
+		}		
 		// Check whether light sensor is working properly
 
 		sensor_stat=light_sensor_power_on();
@@ -97,14 +102,24 @@ void built_in_self_test(){
 	
 		ret_status = set_gain(HIGH_GAIN);
 		if(ret_status!= WRITE_REG_SUCCESS){
-	printf("\n\rLight sensor initialisation failed. Failed to write gain bits");
+		printf("\n\rLight sensor initialisation failed. Failed to write gain bits");
 		}
-		
+	
+		ret_status = get_gain(data);
+		if((*(data) & 0x01)!=0x01 && ret_status!=READ_REG_SUCCESS){
+		printf("\n\rLight sensor initialisation failed. Incorrect gain bit  data =%x",*data);
+		}
+	
 		ret_status = config_interrupt_ctrl_reg(INTERRUPT_ON);
 		if(ret_status!= WRITE_REG_SUCCESS){
 		printf("\n\rLight sensor initialisation failed. Failed to write Interrupt control register bits");
 		}
-	
+		ret_status = get_interrupt_ctrl_reg(data);
+		if(*data!= INTERRUPT_ON && ret_status!= READ_REG_SUCCESS){
+		printf("\n\rLight sensor initialisation failed. Failed to read Interrupt control register bits");
+		}	
+		
+		
 		ret_status = get_low_threshold(data_16);
 		if( *data_16 !=0x0000 && ret_status!= READ_REG_SUCCESS ){
 		printf("\n\rLight sensor initialisation failed. Failed to write Interrupt low threshold");

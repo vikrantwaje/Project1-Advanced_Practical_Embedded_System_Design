@@ -463,6 +463,39 @@ sensor_status_t set_gain( int gainlevel )
 	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
+/***********************************************************************************************  
+ * @brief Get gain 
+ *
+ *Responsible for retrieivng gain
+ *
+ * @param null
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
+
+// i think this function is not required
+sensor_status_t get_gain(uint8_t *data)
+{
+	pthread_mutex_lock(&i2c_mutex);
+	//uint8_t *data = malloc(sizeof(uint8_t));
+	sensor_status_t status = light_read_reg(TIMING_REG,data,GAIN); // check data arg
+	if(status != READ_REG_SUCCESS){
+		perror("Reading register for gain failed");
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+	// check if printing is OK!
+	/*if( *data == 0x00 )
+		printf("\nIntegration time = 13.7ms");
+	else if( *data == 0x01 )
+		printf("\nIntegration time = 101ms");
+	else if( *data == 0x02 )
+		printf("\nIntegration time = 402ms");
+*/
+	pthread_mutex_unlock(&i2c_mutex);
+	return READ_REG_SUCCESS;
+
+}
 
 
 /***********************************************************************************************  
@@ -503,6 +536,40 @@ sensor_status_t config_interrupt_ctrl_reg( uint8_t command )
 	return WRITE_REG_SUCCESS;
 }
 
+/***********************************************************************************************  
+ * @brief Get value of Interrupt control Register 
+ *
+ *Responsible for retrieving value of Interrupt Control Register
+ *
+ * @param null
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
+
+// i think this function is not required
+sensor_status_t get_interrupt_ctrl_reg(uint8_t *data)
+{
+	pthread_mutex_lock(&i2c_mutex);
+	//uint8_t *data = malloc(sizeof(uint8_t));
+	sensor_status_t status = light_read_reg(INTERRUPT_REG,data,NONE); // check data arg
+	if(status != READ_REG_SUCCESS){
+		perror("Reading register for gain failed");
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+
+	// check if printing is OK!
+	/*if( *data == 0x00 )
+		printf("\nIntegration time = 13.7ms");
+	else if( *data == 0x01 )
+		printf("\nIntegration time = 101ms");
+	else if( *data == 0x02 )
+		printf("\nIntegration time = 402ms");
+*/
+	pthread_mutex_unlock(&i2c_mutex);
+	return READ_REG_SUCCESS;
+
+}
 
 /***********************************************************************************************  
  * @brief Read low threshold

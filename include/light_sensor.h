@@ -186,7 +186,16 @@ sensor_status_t read_identification_reg(uint8_t *data);
  *********************************************************************************************/
 sensor_status_t set_gain( int gainlevel );
 
-
+/***********************************************************************************************  
+ * @brief Get gain 
+ *
+ *Responsible for retrieivng gain 
+ *
+ * @param uint8_t *data
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
+sensor_status_t get_gain(uint8_t *data);
 
 /***********************************************************************************************  
  * @brief Configure Interrupt Controller Register
@@ -199,8 +208,31 @@ sensor_status_t set_gain( int gainlevel );
  *********************************************************************************************/
 sensor_status_t config_interrupt_ctrl_reg( uint8_t command );
 
+/***********************************************************************************************  
+ * @brief Get value of Interrupt control Register 
+ *
+ *Responsible for retrieving value of Interrupt Control Register
+ *
+ * @param null
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
 
+// i think this function is not required
+sensor_status_t get_interrupt_ctrl_reg(uint8_t *data);
 
+/***********************************************************************************************  
+ * @brief Get value of Interrupt control Register 
+ *
+ *Responsible for retrieving value of Interrupt Control Register
+ *
+ * @param null
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
+
+// i think this function is not required
+sensor_status_t get_interrupt_ctrl_reg(uint8_t *data);
 /***********************************************************************************************  
  * @brief Read low threshold
  *

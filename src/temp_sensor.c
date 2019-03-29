@@ -592,3 +592,38 @@ sensor_status_t read_temp_conversion_rate(uint8_t *data){
 	return READ_REG_SUCCESS;
 
 }
+
+
+/*********************************************************************************************** 
+ * @brief Read sensor resolution from configuration register
+ *
+ *  Read sensor resolution
+ *
+ * @param :uint8_t *data
+ * @return :status of I2C operations
+ *********************************************************************************************/
+
+sensor_status_t read_temp_sensor_resolution(uint8_t *data){
+
+	pthread_mutex_lock(&i2c_mutex);
+	uint8_t *temp_data = malloc(sizeof(uint8_t)*2);
+	if (temp_data == NULL)
+	{
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+
+	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,temp_data,ALL);
+	if(sensor_stat != READ_REG_SUCCESS)
+	{
+		perror("read temp conversion failed");
+		free(temp_data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+	*(data + 0) = *(temp_data + 1)>>5;
+	free(temp_data);
+	pthread_mutex_unlock(&i2c_mutex);
+	return READ_REG_SUCCESS;
+
+}

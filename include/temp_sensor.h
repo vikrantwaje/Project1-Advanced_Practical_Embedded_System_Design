@@ -223,6 +223,17 @@ sensor_status_t configure_temp_conversion_rate(uint8_t rate);
 
 sensor_status_t read_temp_conversion_rate(uint8_t *data);
 
+/*********************************************************************************************** 
+ * @brief Read sensor resolution from configuration register
+ *
+ *  Read sensor resolution
+ *
+ * @param :uint8_t *data
+ * @return :status of I2C operations
+ *********************************************************************************************/
+
+sensor_status_t read_temp_sensor_resolution(uint8_t *data);
+
 
 
 #endif	//SRC_TEMP_H_
