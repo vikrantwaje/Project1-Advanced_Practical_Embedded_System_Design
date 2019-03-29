@@ -303,8 +303,6 @@ double get_Tlow(request_cmd_t request){
 	return (digitalTemp*multiplier);
 
 
-	//	free(data);
-
 }
 
 /*********************************************************************************************** 
