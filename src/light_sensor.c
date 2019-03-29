@@ -413,13 +413,13 @@ sensor_status_t get_integration_time(uint8_t *data)
 		return READ_REG_FAIL;
 	}
 	// check if printing is OK!
-	if( *data == 0x00 )
+	/*if( *data == 0x00 )
 		printf("\nIntegration time = 13.7ms");
 	else if( *data == 0x01 )
 		printf("\nIntegration time = 101ms");
 	else if( *data == 0x02 )
 		printf("\nIntegration time = 402ms");
-
+*/
 	pthread_mutex_unlock(&i2c_mutex);
 	return READ_REG_SUCCESS;
 

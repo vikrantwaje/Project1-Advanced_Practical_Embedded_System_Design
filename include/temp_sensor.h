@@ -37,21 +37,21 @@
 #define TLOW_REG		(0x02)
 #define THIGH_REG		(0x03)
 
-#define CONVERSION_RATE_0_25	((0x00)<<6U)
-#define CONVERSION_RATE_1	((0x01)<<6U)
-#define CONVERSION_RATE_4	((0x02)<<6U)
-#define CONVERSION_RATE_8	((0x03)<<6U)
+#define CONVERSION_RATE_0_25	((0x00))
+#define CONVERSION_RATE_1	((0x01))
+#define CONVERSION_RATE_4	((0x02))
+#define CONVERSION_RATE_8	((0x03))
 
-#define SHUTDOWN_ON			((0x01))
+#define SHUTDOWN_ON		((0x01))
 #define SHUTDOWN_OFF		((0x00))
 
-#define EM_ON				((0x01))
-#define EM_OFF				((0x00))
+#define EM_ON			((0x01))
+#define EM_OFF			((0x00))
 
-#define FAULT_1			((0x00)<<11U) 
-#define FAULT_2			((0x01)<<11U)
-#define FAULT_3			((0x02)<<11U)
-#define FAULT_4			((0x03)<<11U)
+#define FAULT_1			((0x00)) 
+#define FAULT_2			((0x01))
+#define FAULT_3			((0x02))
+#define FAULT_4			((0x03))
 
 
 
