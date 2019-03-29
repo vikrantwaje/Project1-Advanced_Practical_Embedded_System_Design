@@ -276,8 +276,9 @@ double read_lux(){
 		luxVal = (0.00146 * ch0) - (0.00112*ch1);
 	}
 
-
+	free(data);
 	pthread_mutex_unlock(&i2c_mutex);
+
 	return luxVal;
 //	return 0;
 
@@ -324,10 +325,13 @@ sensor_status_t set_integration_time(uint8_t INTEGRATION)
 {
 	pthread_mutex_lock(&i2c_mutex);
 	uint8_t *data = malloc(sizeof(uint8_t));
-	sensor_status_t status = light_read_reg(TIMING_REG,data,INTEGRATION_TIME); // check data arg
-	*data = ~0x03;	//check if required
+	sensor_status_t status = light_read_reg(TIMING_REG,data,NONE); // check data arg
+	*data &= ~0x03;	//check if required
 	if(status != READ_REG_SUCCESS){
 		perror("Reading register for time integration failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
 		//Should set a flag and return as required: error/success, to avoid deadlock
 	}
 
@@ -347,7 +351,12 @@ sensor_status_t set_integration_time(uint8_t INTEGRATION)
 	status = light_write_reg(TIMING_REG, *data); //check data arg
 	if(status != WRITE_REG_SUCCESS){
 		perror("Writing register for integration time failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return WRITE_REG_FAIL;
 	}
+
+	free(data);
 	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
@@ -361,12 +370,20 @@ sensor_status_t set_integration_time(uint8_t INTEGRATION)
  *
  * @return uint8_t returns the identification value
  *********************************************************************************************/
-uint8_t read_identification_reg(){
+sensor_status_t read_identification_reg(uint8_t *data){
 	sensor_status_t status = 0;
 	pthread_mutex_lock(&i2c_mutex);
 	
-	uint8_t *data = malloc(sizeof(uint8_t));
+	//uint8_t *data = malloc(sizeof(uint8_t));
 	status = light_read_reg(ID_REG,data,ALL);
+	if(status != READ_REG_SUCCESS)
+	{
+		perror("Reading register for identification failed");
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+		//Should set a flag and return as required: error/success, to avoid deadlock
+	}
+
 	pthread_mutex_unlock(&i2c_mutex);
 	return (*data >>4);
 
@@ -385,13 +402,15 @@ uint8_t read_identification_reg(){
  *********************************************************************************************/
 
 // i think this function is not required
-sensor_status_t get_integration_time(void)
+sensor_status_t get_integration_time(uint8_t *data)
 {
 	pthread_mutex_lock(&i2c_mutex);
-	uint8_t *data = malloc(sizeof(uint8_t));
+	//uint8_t *data = malloc(sizeof(uint8_t));
 	sensor_status_t status = light_read_reg(TIMING_REG,data,INTEGRATION_TIME); // check data arg
 	if(status != READ_REG_SUCCESS){
 		perror("Reading register for time integration failed");
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
 	}
 	// check if printing is OK!
 	if( *data == 0x00 )
@@ -421,9 +440,12 @@ sensor_status_t set_gain( int gainlevel )
 {
 	pthread_mutex_lock(&i2c_mutex);
 	uint8_t *data = malloc(sizeof(uint8_t));
-	sensor_status_t status = light_read_reg(TIMING_REG,data,GAIN); // check data arg
+	sensor_status_t status = light_read_reg(TIMING_REG,data,NONE); // check data arg
 	if(status != READ_REG_SUCCESS){
 		perror("Reading register for Setting gain failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
 	}
 	if( gainlevel == LOW_GAIN )
 		*data &= ~0x10;
@@ -433,7 +455,11 @@ sensor_status_t set_gain( int gainlevel )
 	status = light_write_reg(TIMING_REG, *data); //check data arg
 	if(status != WRITE_REG_SUCCESS){
 		perror("Writing register for Setting gain failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return WRITE_REG_FAIL;
 	}
+	free(data);
 	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
@@ -448,24 +474,31 @@ sensor_status_t set_gain( int gainlevel )
  *
  * @return status of I2C operation
  *********************************************************************************************/
-sensor_status_t config_interrupt_ctrl_reg( interrupt_cmd_t command )
+sensor_status_t config_interrupt_ctrl_reg( uint8_t command )
 {
 	pthread_mutex_lock(&i2c_mutex);
 	uint8_t *data = malloc(sizeof(uint8_t));
-	sensor_status_t status = light_read_reg(INTERRUPT_REG,data,5);	
+	sensor_status_t status = light_read_reg(INTERRUPT_REG,data,NONE);	
 	if(status != READ_REG_SUCCESS){
 		perror("Reading register for Configuring Interrupt failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
 	}
 
-	if (command == INTERRUPT_ON )
+	if (command == INTERRUPT_OFF )
 		*data &= ~0x30;
-	else if (command == INTERRUPT_OFF )
+	else if (command == INTERRUPT_ON )
 		*data |= 0x10;
 
 	status = light_write_reg(INTERRUPT_REG, *data); //check data arg
 	if(status != WRITE_REG_SUCCESS){
 		perror("Writing register for Configuring Interrupt failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return WRITE_REG_FAIL;
 	}
+	free(data);
 	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
@@ -477,28 +510,37 @@ sensor_status_t config_interrupt_ctrl_reg( interrupt_cmd_t command )
  * Registers THRESHLOWLOW and THRESHLOWHIGH provide the low byte and
  * high byte, respectively, of the lower interrupt threshold
  *
- * @param nulls
+ * @param uint16_t *data
  *
- * @return value of low threshold
+ * @return status of I2C operation
  *********************************************************************************************/
-uint8_t get_low_threshold(void)
+sensor_status_t get_low_threshold(uint16_t *data)
 {
 	pthread_mutex_lock(&i2c_mutex);
-	uint8_t *data = malloc(sizeof(uint8_t));
-	sensor_status_t status = light_read_reg(THRESHLOWHIGH_REG,data, 5);	
+	uint8_t *data_low = malloc(sizeof(uint8_t));
+	sensor_status_t status = light_read_reg(THRESHLOWLOW_REG, data_low, NONE);	
 	if(status != READ_REG_SUCCESS){
 		perror("Reading register for getting low threshold value failed");
+		free(data_low);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
 	}
-	*data <<= 8;
+	//*data <<= 8;
 
-	uint8_t *data1 = malloc(sizeof(uint8_t));
-	status = light_read_reg(THRESHLOWLOW_REG,data1, 5);
+	uint8_t *data_high = malloc(sizeof(uint8_t));
+	status = light_read_reg(THRESHLOWHIGH_REG,data_high, NONE);
 	if(status != READ_REG_SUCCESS){
 		perror("Reading register for getting low threshold value failed");
+		free(data_low);
+		free(data_high);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
 	}
-	*data |= *data1;
+	*data = *data_high << 8 | *data_low ;
+	free(data_low);
+	free(data_high);
 	pthread_mutex_unlock(&i2c_mutex);
-	return *data;
+	return WRITE_REG_SUCCESS;
 }
 
 
@@ -508,28 +550,37 @@ uint8_t get_low_threshold(void)
  * Registers THRESHIGHLOW and THRESHHIGHHIGH provide the low byte and
  * high byte, respectively, of the lower interrupt threshold
  *
- * @param nulls
+* @param uint16_t *data
  *
- * @return value of high threshold
+ * @return status of I2C operation
  *********************************************************************************************/
-uint8_t get_high_threshold(void)
+sensor_status_t get_high_threshold(uint16_t *data)
 {
 	pthread_mutex_lock(&i2c_mutex);
-	uint8_t *data = malloc(sizeof(uint8_t));
-	sensor_status_t status = light_read_reg(THRESHHIGHHIGH_REG,data, 5);	
+	uint8_t *data_low = malloc(sizeof(uint8_t));
+	sensor_status_t status = light_read_reg(THRESHHIGHLOW_REG, data_low, NONE);	
 	if(status != READ_REG_SUCCESS){
 		perror("Reading register for getting high threshold value failed");
+		free(data_low);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
 	}
-	*data <<= 8;
+	//*data <<= 8;
 
-	uint8_t *data1 = malloc(sizeof(uint8_t));
-	status = light_read_reg(THRESHHIGHLOW_REG,data1, 5);
+	uint8_t *data_high = malloc(sizeof(uint8_t));
+	status = light_read_reg(THRESHHIGHHIGH_REG,data_high, NONE);
 	if(status != READ_REG_SUCCESS){
 		perror("Reading register for getting high threshold value failed");
+		free(data_low);
+		free(data_high);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
 	}
-	*data |= *data1;
+	*data = *data_high << 8 | *data_low ;
+	free(data_low);
+	free(data_high);
 	pthread_mutex_unlock(&i2c_mutex);
-	return *data;
+	return WRITE_REG_SUCCESS;
 }
 
 // for reading low/high threshold data, write_two_reg required

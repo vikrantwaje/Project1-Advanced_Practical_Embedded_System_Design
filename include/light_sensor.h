@@ -37,12 +37,12 @@
 
 
 typedef enum{
-	INTEGRATION_TIME, GAIN
+	INTEGRATION_TIME, GAIN, NONE
 }read_cmd_t;
 
-typedef enum{
-	INTERRUPT_ON, INTERRUPT_OFF
-}interrupt_cmd_t;
+// typedef enum{
+// 	INTERRUPT_ON, INTERRUPT_OFF
+// }interrupt_cmd_t;
 
 #define LIGHT_SENSOR_I2C_ADDRESS (0x39)
 #define CONTROL_REG	 	(0x00)
@@ -63,9 +63,11 @@ typedef enum{
 #define INTEGRATION_101		((0x01))
 #define INTEGRATION_402		((0x02))
 
-#define LOW_GAIN		((0x00)<<4U)
-#define HIGH_GAIN		((0x01)<<4U)
+#define LOW_GAIN			((0x00))
+#define HIGH_GAIN			((0x01))
 
+#define	INTERRUPT_OFF		((0x00))
+#define	INTERRUPT_ON		((0x01))
 
 #define COMMAND_BIT		(0x80)
 #define WORD_OPERATION_BIT	(0x20)
@@ -154,22 +156,23 @@ sensor_status_t set_integration_time(uint8_t INTEGRATION);
  *
  *Responsible for retrieivng set integration 
  *
- * @param null
+ * @param uint8_t *data
  *
  * @return status of I2C operation
  *********************************************************************************************/
-sensor_status_t get_integration_time(void);
+sensor_status_t get_integration_time(uint8_t *data);
 
 /***********************************************************************************************  
  * @brief Read identification register 
  *
  *Responsible for reading identification register 
  *
- * @param null
+ * @param uint8_t data
  *
- * @return uint8_t returns the identification value
+ * @return status of I2C operation
  *********************************************************************************************/
-uint8_t read_identification_reg();
+sensor_status_t read_identification_reg(uint8_t *data);
+
 	
 /***********************************************************************************************  
  * @brief Set gain 
@@ -190,11 +193,11 @@ sensor_status_t set_gain( int gainlevel );
  *
  * Enables/Disables Interrupt through Interrupt Controller Register
  *
- * @param interrupt_cmd_t command
+ * @param uint8_t command
  *
  * @return status of I2C operation
  *********************************************************************************************/
-sensor_status_t config_interrupt_ctrl_reg( interrupt_cmd_t command );
+sensor_status_t config_interrupt_ctrl_reg( uint8_t command );
 
 
 
@@ -204,11 +207,11 @@ sensor_status_t config_interrupt_ctrl_reg( interrupt_cmd_t command );
  * Registers THRESHLOWLOW and THRESHLOWHIGH provide the low byte and
  * high byte, respectively, of the lower interrupt threshold
  *
- * @param nulls
+ * @param uint16_t *data
  *
- * @return value of low threshold
+ * @return status of I2C operation
  *********************************************************************************************/
-uint8_t get_low_threshold(void);
+sensor_status_t get_low_threshold(uint16_t *data);
 
 
 /***********************************************************************************************  
@@ -217,11 +220,11 @@ uint8_t get_low_threshold(void);
  * Registers THRESHIGHLOW and THRESHHIGHHIGH provide the low byte and
  * high byte, respectively, of the lower interrupt threshold
  *
- * @param nulls
+ * @param uint16_t *data
  *
- * @return value of high threshold
+ * @return status of I2C operation
  *********************************************************************************************/
-uint8_t get_high_threshold(void);
+sensor_status_t get_high_threshold(uint16_t *data);
 
 
 

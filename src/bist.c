@@ -29,6 +29,7 @@ void built_in_self_test(){
 	double return_data = 0.0;
 	sensor_status_t sensor_stat;	
 	uint8_t sensor_data = 0;
+	uint8_t *data = malloc(sizeof(uint8_t));
 	int ret_status =0;
 	// Check whether temperature sensor is working properly
 	return_data = get_Thigh(REQUEST_KELVIN);
@@ -47,8 +48,9 @@ void built_in_self_test(){
 	if(sensor_stat != WRITE_REG_SUCCESS){
 		printf("\n\rLight sensor initialisation failed");
 	}
-	sensor_data =read_identification_reg();	
-	if(sensor_data != 0x05){
+
+	sensor_stat =read_identification_reg(data);	
+	if(*data != 0x05){
 		printf("\n\rLight sensor initialisation failed");
 	}
 
