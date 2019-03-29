@@ -40,6 +40,11 @@ typedef enum{
 	INTEGRATION_TIME, GAIN
 }read_cmd_t;
 
+typedef enum{
+	INTERRUPT_ON, INTERRUPT_OFF
+}intp_cmd_t;
+
+
 #define LIGHT_SENSOR_I2C_ADDRESS (0x39)
 #define CONTROL_REG	 	(0x00)
 #define TIMING_REG		(0x01)
@@ -72,7 +77,8 @@ typedef enum{
 /*************************************************************************************
 *				FUNCTION PROTOTYPE
 *****************************************************************************************/
-/***********************************************************************************************  * @brief write register in light sensor 
+/*********************************************************************************************** 
+ * @brief write register in light sensor 
  *
  *Responsible for writing into  register of light sensor
  *
@@ -83,7 +89,8 @@ typedef enum{
  *********************************************************************************************/
 sensor_status_t light_write_reg(uint8_t address, uint8_t data);
 
-/***********************************************************************************************  * @brief Read register in light sensor 
+/*********************************************************************************************** 
+ * @brief Read register in light sensor 
  *
  *Responsible for reading from register of light sensor
  *
@@ -94,7 +101,8 @@ sensor_status_t light_write_reg(uint8_t address, uint8_t data);
  *********************************************************************************************/
 sensor_status_t light_read_reg(uint8_t address, uint8_t *data,read_cmd_t command);
 
-/***********************************************************************************************  * @brief Read two register in light sensor 
+/*********************************************************************************************** 
+ * @brief Read two register in light sensor 
  *
  *Responsible for reading from two  register of light sensor
  *
@@ -105,7 +113,8 @@ sensor_status_t light_read_reg(uint8_t address, uint8_t *data,read_cmd_t command
  *********************************************************************************************/
 
 sensor_status_t read_two_reg(uint8_t address, uint8_t *data);
-/***********************************************************************************************  * @brief Read lux values 
+/*********************************************************************************************** 
+ * @brief Read lux values 
  *
  *Responsible for reading lux value from light sensor
  *
@@ -125,6 +134,18 @@ double read_lux();
  *********************************************************************************************/
 
 sensor_status_t light_sensor_power_on();
+
+
+
+void set_integration_time();
+double get_integration_time();
+
+void set_gain();
+double get_gain();
+void config_interrupt_ctrl_reg();
+
+void set_interrupt_threshold_reg();
+double get_interrupt_threshold_reg();
 
 
 

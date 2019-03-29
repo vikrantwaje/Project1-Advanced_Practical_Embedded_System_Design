@@ -203,7 +203,7 @@ double read_lux(){
 	}
 	float ch1 = (float)( (*(data +1)<<8) | *(data +0));
 
-	status = light_read_reg(TIMING_REG,data,INTEGRATION_TIME);
+	status = f
 	if(status!= READ_REG_SUCCESS){
 		perror("Reading integration time failed");
 
@@ -309,4 +309,106 @@ sensor_status_t light_sensor_power_on(){
 	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
+
+/*
+• Write to the command register
+• Read/Write the Control Register
+• Read/Write the Timing register
+o 	Set the Integration time
+o 	Set Gain
+• Enable and disable the Interrupt Control Register
+• Read the Identification Register (Think startup tests!!!)
+• Read/Write to the Interrupt threshold registers
+• Read sensor LUX data using the ADC registers (Data0 and Data1)
+*/
+
+sensor_status_t set_integration_time(uint8_t INTEGRATION)
+{
+	pthread_mutex_lock(&i2c_mutex);
+	uint8_t *data = malloc(sizeof(uint8_t));
+	sensor_status_t status = light_read_reg(TIMING_REG,data,INTEGRATION_TIME); // check data arg
+	*data = ~0x03;	//check if required
+	if(status != READ_REG_SUCCESS){
+		perror("Reading register for time integration failed");
+		//Should set a flag and return as required: error/success, to avoid deadlock
+	}
+
+	if( INTEGRATION == INTEGRATION_13_7 )
+	{
+		*data |= 0x00;
+	}
+	else if( INTEGRATION == INTEGRATION_101 )
+	{
+		*data |= 0x01;
+	}
+	else if( INTEGRATION == INTEGRATION_402 )
+	{
+		*data |= 0x02;
+	}
+
+	status = light_write_reg(TIMING_REG, *data); //check data arg
+	if(status != WRITE_REG_SUCCESS){
+		perror("Writing register for integration time failed");
+	}
+	pthread_mutex_unlock(&i2c_mutex);
+	return WRITE_REG_SUCCESS;
+}
+
+
+// i think this function is not required
+sensor_status_t get_integration_time()
+{
+	pthread_mutex_lock(&i2c_mutex);
+	uint8_t *data = malloc(sizeof(uint8_t));
+	sensor_status_t status = light_read_reg(TIMING_REG,data,INTEGRATION_TIME); // check data arg
+	if(status != READ_REG_SUCCESS){
+		perror("Reading register for time integration failed");
+	}
+	// check if printing is OK!
+	if( *data == 0x00 )
+		printf("\nIntegration time = 13.7ms");
+	else if( *data == 0x01 )
+		printf("\nIntegration time = 101ms");
+	else if( *data == 0x02 )
+		printf("\nIntegration time = 402ms");
+
+	pthread_mutex_unlock(&i2c_mutex);
+	return READ_REG_SUCCESS;
+
+}
+
+
+sensor_status_t set_gain( int gainlevel )
+{
+	pthread_mutex_lock(&i2c_mutex);
+	uint8_t *data = malloc(sizeof(uint8_t));
+	sensor_status_t status = light_read_reg(TIMING_REG,data,INTEGRATION_TIME); // check data arg
+	if(status != READ_REG_SUCCESS){
+		perror("Reading register for Setting gain failed");
+	}
+	if( gainlevel == LOW_GAIN )
+		*data &= ~ 0x10;
+	else if( gainlevel == HIGH_GAIN )
+		*data |= 0x10;
+
+	status = light_write_reg(TIMING_REG, *data); //check data arg
+	if(status != WRITE_REG_SUCCESS){
+		perror("Writing register for Setting gain failed");
+	}
+	pthread_mutex_unlock(&i2c_mutex);
+	return WRITE_REG_SUCCESS;
+}
+
+
+
+//double get_gain();
+
+void config_interrupt_ctrl_reg( int command )
+{
+
+}
+void set_interrupt_threshold_reg();
+double get_interrupt_threshold_reg();
+
+
 

@@ -379,7 +379,7 @@ double get_Thigh(request_cmd_t request){
 void configure_temp_shutdown(uint16_t data){
 
 	pthread_mutex_lock(&i2c_mutex);
-	temperature_write_reg(configuration_reg,data);
+	temperature_write_reg(CONFIGURATION_REG,data);
 	pthread_mutex_unlock(&i2c_mutex);
 }
 	
