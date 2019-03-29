@@ -76,6 +76,10 @@ sensor_status_t temperature_write_reg(uint8_t address, uint16_t data){
 	int fptr = 0;
 	int n = 0;
 	uint8_t *buffer = malloc(sizeof(uint8_t) *5);
+	if( buffer == NULL )
+	{
+		return WRITE_REG_FAIL;
+	}
 	*(buffer + 0) = (address);
 	*(buffer + 1) = ((data & 0xFF00)>>8);
 	*(buffer + 2) = ((data) & 0x00FF);
@@ -83,16 +87,19 @@ sensor_status_t temperature_write_reg(uint8_t address, uint16_t data){
 	fptr = open(temp_i2c_path_name,O_RDWR);	
 	if(fptr == -1){
 		perror("Error in opening the file");
+		free(buffer);
 		return WRITE_REG_FAIL;
 	}
 	status = ioctl(fptr,I2C_SLAVE,TEMP_SENSOR_I2C_ADDRESS);
 	if(status !=0){
 		perror("IOCTL function failed");
+		free(buffer);
 		return WRITE_REG_FAIL;
 	}
 	n = write(fptr,buffer,3);
 	if(n ==-1){
 		perror("Write not successfull");
+		free(buffer);
 		return WRITE_REG_FAIL;
 	}
 	close(fptr);
@@ -193,20 +200,17 @@ double get_temperature(request_cmd_t request){
 	//double result = 0;
 	double multiplier =0;
 	uint8_t *data = malloc(sizeof(uint8_t) * 2);
-	if(request == REQUEST_CELSIUS){
-		multiplier =0.0625;
+	if ( data == NULL )
+	{
+		return READ_REG_FAIL;
 	}
-	else if(request == REQUEST_CELSIUS){
-		multiplier =0.0625;
-	}	
-	else{
-		multiplier = 0.0625;
-	}	int status = temperature_read_reg(TEMPERATURE_REG,data,ALL);
+    multiplier = 0.0625;	
+	int status = temperature_read_reg(TEMPERATURE_REG,data,ALL);
 	if(status !=READ_REG_SUCCESS){
 
 		perror("Reading configuration register failed");
-
-
+		free( data );
+		pthread_mutex_unlock(&i2c_mutex);
 	}
 	//printf("%x %x",*(data + 0),*(data +1));
 
@@ -241,11 +245,16 @@ double get_temperature(request_cmd_t request){
 
 	pthread_mutex_unlock(&i2c_mutex);
 
-	return (digitalTemp*multiplier);
-
-
-	//	free(data);
-
+	if ( request == REQUEST_KELVIN )
+	{
+		return(digitalTemp*multiplier + 273.15);		
+	}
+	else if ( request == REQUEST_FAHRENHEIT )
+	{
+		return ((digitalTemp*multiplier * 9.0/5.0) + 32.0);
+	}
+	else
+		return(digitalTemp*multiplier);
 }
 
 /*********************************************************************************************** 
@@ -262,22 +271,14 @@ double get_Tlow(request_cmd_t request){
 
 	pthread_mutex_lock(&i2c_mutex);
 	double multiplier =0;
-	if(request == REQUEST_CELSIUS){
-		multiplier =0.0625;
-	}
-	else if(request == REQUEST_KELVIN){
-		multiplier =0.0625;
-	}	
-	else{
-		multiplier = 0.0625;
-	}
+	multiplier = 0.0625;
 	uint8_t *data = malloc(sizeof(uint8_t) * 2);
 	int status = temperature_read_reg(TLOW_REG,data,ALL);
 	if(status !=READ_REG_SUCCESS){
 
 		perror("Reading configuration register failed");
-
-
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
 	}
 
 	//printf("%x %x",*(data + 0),*(data +1));
@@ -300,9 +301,16 @@ double get_Tlow(request_cmd_t request){
 
 	pthread_mutex_unlock(&i2c_mutex);
 
-	return (digitalTemp*multiplier);
-
-
+	if ( request == REQUEST_KELVIN )
+	{
+		return(digitalTemp*multiplier + 273.15);		
+	}
+	else if ( request == REQUEST_FAHRENHEIT )
+	{
+		return ((digitalTemp*multiplier * 9.0/5.0) + 32.0);
+	}
+	else
+		return(digitalTemp*multiplier);
 }
 
 /*********************************************************************************************** 
@@ -320,21 +328,13 @@ double get_Thigh(request_cmd_t request){
 	pthread_mutex_lock(&i2c_mutex);
 	double multiplier =0;
 	uint8_t *data = malloc(sizeof(uint8_t) * 2);
-	if(request == REQUEST_CELSIUS){
-		multiplier =0.0625;
-	}
-	else if(request == REQUEST_KELVIN){
-		multiplier =0.0625;
-	}	
-	else{
-		multiplier = 0.0625;
-	}
+	multiplier = 0.0625;
 	int status = temperature_read_reg(THIGH_REG,data,ALL);
 	if(status !=READ_REG_SUCCESS){
 
 		perror("Reading THIGH register failed");
-
-
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
 	}
 
 	//printf("%x %x",*(data + 0),*(data +1));
@@ -357,10 +357,16 @@ double get_Thigh(request_cmd_t request){
 
 	pthread_mutex_unlock(&i2c_mutex);
 
-	return (digitalTemp*multiplier);
-
-
-	//	free(data);
+	if ( request == REQUEST_KELVIN )
+	{
+		return(digitalTemp*multiplier + 273.15);		
+	}
+	else if ( request == REQUEST_FAHRENHEIT )
+	{
+		return ((digitalTemp*multiplier * 9.0/5.0) + 32.0);
+	}
+	else
+		return(digitalTemp*multiplier);
 
 }
 
@@ -369,16 +375,35 @@ double get_Thigh(request_cmd_t request){
  *
  * set the configuration register in shutdown mode
  *
- * @param :data: To be set in shutdown mode or not
- * @return :null
+ * @param :null
+ * @return :status of I2C operation
  *********************************************************************************************/
 
 
-void configure_temp_shutdown(uint16_t data){
+sensor_status_t configure_temp_shutdown(void){
 
 	pthread_mutex_lock(&i2c_mutex);
-	temperature_write_reg(CONFIGURATION_REG,data);
+	uint8_t *data = malloc(sizeof(uint8_t)*2);
+	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,data, ALL);
+	if( sensor_stat != READ_REG_SUCCESS )
+	{
+		perror("Configuring Shutdown mode failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+	*(data + 1) |= SHUTDOWN_ON;
+	sensor_stat = temperature_write_reg(CONFIGURATION_REG,(*(data + 0) | *(data + 1) << 8));
+	if( sensor_stat != WRITE_REG_SUCCESS )
+	{
+		perror("Configuring Shutdown mode failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return WRITE_REG_FAIL;
+	}
+	free(data);
 	pthread_mutex_unlock(&i2c_mutex);
+	return WRITE_REG_SUCCESS;
 }
 	
 /*********************************************************************************************** 
@@ -386,18 +411,33 @@ void configure_temp_shutdown(uint16_t data){
  *
  *  Read fault bits
  *
- * @param :null
- * @return :uint8_t
+ * @param :uint8_t* data
+ * @return :status of I2C operation
  *********************************************************************************************/
 
 
-uint8_t read_temp_fault(){
+sensor_status_t read_temp_fault(uint8_t *data){
 
 	pthread_mutex_lock(&i2c_mutex);
-	uint8_t *data = malloc(sizeof(uint8_t)*2);
-	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,data,FAULT);
+	uint8_t *temp_data = malloc(sizeof(uint8_t)*2);
+	if (temp_data == NULL)
+	{
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+
+	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,temp_data,ALL);
+	if(sensor_stat != READ_REG_SUCCESS)
+	{
+		perror("read temp fault failed");
+		free(temp_data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+	*(data + 0) = *(temp_data + 1)>>3;
+	free(temp_data);
 	pthread_mutex_unlock(&i2c_mutex);
-	return *(data +0);
+	return READ_REG_SUCCESS;
 }
 
 /*********************************************************************************************** 
@@ -405,17 +445,40 @@ uint8_t read_temp_fault(){
  *
  * set the configuration register in EM mode
  *
- * @param :data: To be set in EM mode or not
- * @return :null
+ * @param :mode
+ * @return :status of I2C operation
  *********************************************************************************************/
 
-
-void configure_temp_EMmode(uint16_t data){
+sensor_status_t configure_temp_EMmode(uint8_t mode){
 
 	pthread_mutex_lock(&i2c_mutex);
-	temperature_write_reg(CONFIGURATION_REG,data);
+	uint8_t *data = malloc(sizeof(uint8_t)*2);
+	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,data, ALL);
+	if( sensor_stat != READ_REG_SUCCESS )
+	{
+		perror("Configuring Extended mode failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+
+	*(data + 0) &= 0xEF;		// Clear EM (bit 4 of second byte)
+   	*(data + 0) |= mode<<4;	// Shift in new exentended mode bit
+
+
+	sensor_stat = temperature_write_reg(CONFIGURATION_REG,(*(data + 0) | *(data + 1) << 8));
+	if( sensor_stat != WRITE_REG_SUCCESS )
+	{
+		perror("Configuring Extended mode failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return WRITE_REG_FAIL;
+	}
+	free(data);
 	pthread_mutex_unlock(&i2c_mutex);
+	return WRITE_REG_SUCCESS;
 }
+
 
 
 /*********************************************************************************************** 
@@ -423,18 +486,33 @@ void configure_temp_EMmode(uint16_t data){
  *
  *  Read Em mode bits
  *
- * @param :null
- * @return :uint8_t
+ * @param :uint8_t *data
+ * @return :status of I2C operation
  *********************************************************************************************/
 
 
-uint8_t read_temp_EM(){
+sensor_status_t read_temp_EM(uint8_t *data){
 
 	pthread_mutex_lock(&i2c_mutex);
-	uint8_t *data = malloc(sizeof(uint8_t)*2);
-	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,data,EM);
+	uint8_t *temp_data = malloc(sizeof(uint8_t)*2);
+	if (temp_data == NULL)
+	{
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+
+	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,temp_data,ALL);
+	if(sensor_stat != READ_REG_SUCCESS)
+	{
+		perror("read temp EM failed");
+		free(temp_data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+	*(data + 0) = *(temp_data + 0)>>4;
+	free(temp_data);
 	pthread_mutex_unlock(&i2c_mutex);
-	return *(data +0);
+	return READ_REG_SUCCESS;
 }
 
 /*********************************************************************************************** 
@@ -442,32 +520,75 @@ uint8_t read_temp_EM(){
  *
  * set the conversion rate of temperature sensor
  *
- * @param :data: Set the conversion rate
- * @return :null
+ * @param :data: To Set the conversion rate
+ * @return :status of I2C operation
  *********************************************************************************************/
 
 
-void configure_temp_conversion_rate(uint16_t data){
+sensor_status_t configure_temp_conversion_rate(uint8_t rate){
+
 
 	pthread_mutex_lock(&i2c_mutex);
-	temperature_write_reg(CONFIGURATION_REG,data);
+	uint8_t *data = malloc(sizeof(uint8_t)*2);
+	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,data, ALL);
+	if( sensor_stat != READ_REG_SUCCESS )
+	{
+		perror("Configuring Temp conversion rate failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+
+  	*(data + 0) &= 0x3F;  // Clear CR0/1 (bit 6 and 7 of second byte)
+  	*(data + 0) |= rate<<6;	// Shift in new conversion rate
+
+
+	sensor_stat = temperature_write_reg(CONFIGURATION_REG,(*(data + 0) | *(data + 1) << 8));
+	if( sensor_stat != WRITE_REG_SUCCESS )
+	{
+		perror("Configuring Temp conversion ratefailed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return WRITE_REG_FAIL;
+	}
+	free(data);
 	pthread_mutex_unlock(&i2c_mutex);
+	return WRITE_REG_SUCCESS;
+
+
+
+
 }
 /*********************************************************************************************** 
  * @brief Read conversion rate from configuration register
  *
  *  Read Conversion rate
  *
- * @param :null
- * @return :uint8_t
+ * @param :uint8_t *data
+ * @return :status of I2C operations
  *********************************************************************************************/
 
-
-uint8_t read_temp_conversion(){
+sensor_status_t read_temp_conversion_rate(uint8_t *data){
 
 	pthread_mutex_lock(&i2c_mutex);
-	uint8_t *data = malloc(sizeof(uint8_t)*2);
-	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,data,CONVERSION_RATE);
+	uint8_t *temp_data = malloc(sizeof(uint8_t)*2);
+	if (temp_data == NULL)
+	{
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+
+	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,temp_data,ALL);
+	if(sensor_stat != READ_REG_SUCCESS)
+	{
+		perror("read temp conversion failed");
+		free(temp_data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+	*(data + 0) = *(temp_data + 0)>>6;
+	free(temp_data);
 	pthread_mutex_unlock(&i2c_mutex);
-	return *(data +0);
+	return READ_REG_SUCCESS;
+
 }

@@ -42,11 +42,11 @@
 #define CONVERSION_RATE_4	((0x02)<<6U)
 #define CONVERSION_RATE_8	((0x03)<<6U)
 
-#define SHUTDOWN_ON		((0x01)<<8U)
-#define SHUTDOWN_OFF		((0x00)<<8U)
+#define SHUTDOWN_ON			((0x01))
+#define SHUTDOWN_OFF		((0x00))
 
-#define EM_ON			((0x01)<<4U)
-#define EM_OFF			((0x00)<<4U)
+#define EM_ON				((0x01))
+#define EM_OFF				((0x00))
 
 #define FAULT_1			((0x00)<<11U) 
 #define FAULT_2			((0x01)<<11U)
@@ -56,7 +56,7 @@
 
 
 typedef enum{
-	REQUEST_CELSIUS, REQUEST_KELVIN, REQUEST_FARHENHEIT
+	REQUEST_CELSIUS, REQUEST_KELVIN, REQUEST_FAHRENHEIT
 }request_cmd_t;
 
 
@@ -154,12 +154,11 @@ double get_Thigh(request_cmd_t request);
  *
  * set the configuration register in shutdown mode
  *
- * @param :data: To be set in shutdown mode or not
- * @return :null
+ * @param :null
+ * @return :status of I2C operation
  *********************************************************************************************/
 
-
-void configure_temp_shutdown(uint16_t data);
+sensor_status_t configure_temp_shutdown(void);
 
 
 /*********************************************************************************************** 
@@ -167,12 +166,12 @@ void configure_temp_shutdown(uint16_t data);
  *
  *  Read fault bits
  *
- * @param :null
- * @return :uint8_t
+ * @param :uint8_t* data
+ * @return :status of I2C operation
  *********************************************************************************************/
 
 
-uint8_t read_temp_fault();
+sensor_status_t read_temp_fault(uint8_t *data);
 
 
 /*********************************************************************************************** 
@@ -180,12 +179,11 @@ uint8_t read_temp_fault();
  *
  * set the configuration register in EM mode
  *
- * @param :data: To be set in EM mode or not
- * @return :null
+ * @param :mode
+ * @return :status of I2C operation
  *********************************************************************************************/
 
-
-void configure_temp_EMmode(uint16_t data);
+sensor_status_t configure_temp_EMmode(uint8_t mode);
 
 
 /*********************************************************************************************** 
@@ -193,12 +191,12 @@ void configure_temp_EMmode(uint16_t data);
  *
  *  Read Em mode bits
  *
- * @param :null
- * @return :uint8_t
+ * @param :uint8_t *data
+ * @return :status of I2C operation
  *********************************************************************************************/
 
 
-uint8_t read_temp_EM();
+sensor_status_t read_temp_EM(uint8_t *data);
 
 
 /*********************************************************************************************** 
@@ -206,12 +204,12 @@ uint8_t read_temp_EM();
  *
  * set the conversion rate of temperature sensor
  *
- * @param :data: Set the conversion rate
- * @return :null
+ * @param :data: To Set the conversion rate
+ * @return :status of I2C operation
  *********************************************************************************************/
 
 
-void configure_temp_conversion_rate(uint16_t data);
+sensor_status_t configure_temp_conversion_rate(uint8_t rate);
 
 
 /*********************************************************************************************** 
@@ -219,12 +217,11 @@ void configure_temp_conversion_rate(uint16_t data);
  *
  *  Read Conversion rate
  *
- * @param :null
- * @return :uint8_t
+ * @param :uint8_t *data
+ * @return :status of I2C operations
  *********************************************************************************************/
 
-
-uint8_t read_temp_conversion();
+sensor_status_t read_temp_conversion_rate(uint8_t *data);
 
 
 
