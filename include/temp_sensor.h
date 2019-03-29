@@ -122,5 +122,30 @@ sensor_status_t temperature_read_reg(uint8_t address, uint8_t *data,reg_read_cmd
 
 double get_temperature(request_cmd_t request);
 
+/***********************************************************************************************  
+* @brief Get Tlow register
+ *
+ * Read the value from tlow register
+ *
+ * @param request: Temperature value in kelvin, celsius and farhenheit to be returned
+ * @return double: Value of converted temperature
+ *********************************************************************************************/
+
+
+double get_Tlow(request_cmd_t request);
+
+
+
+/***********************************************************************************************  
+* @brief Get Thigh register
+ *
+ * Read the value from thigh register
+ *
+ * @param request: Temperature value in kelvin, celsius and farhenheit to be returned
+ * @return double: Value of converted temperature
+ *********************************************************************************************/
+
+
+double get_Thigh(request_cmd_t request);
 
 #endif	//SRC_TEMP_H_

@@ -248,4 +248,228 @@ double get_temperature(request_cmd_t request){
 
 }
 
+/*********************************************************************************************** 
+ * @brief Read tlow
+ *
+ * Read the value from tlow 
+ *
+ * @param :null
+ * @return double: tempearture register low value
+ *********************************************************************************************/
 
+
+double get_Tlow(request_cmd_t request){
+
+	pthread_mutex_lock(&i2c_mutex);
+	double multiplier =0;
+	if(request == REQUEST_CELSIUS){
+		multiplier =0.0625;
+	}
+	else if(request == REQUEST_KELVIN){
+		multiplier =0.0625;
+	}	
+	else{
+		multiplier = 0.0625;
+	}
+	uint8_t *data = malloc(sizeof(uint8_t) * 2);
+	int status = temperature_read_reg(TLOW_REG,data,ALL);
+	if(status !=READ_REG_SUCCESS){
+
+		perror("Reading configuration register failed");
+
+
+	}
+
+	//printf("%x %x",*(data + 0),*(data +1));
+
+	int32_t digitalTemp =0;
+
+	
+	// Combine bytes to create a signed int 
+	digitalTemp = (*(data + 1) << 4) | (*(data + 0) >> 4);
+	// Temperature data can be + or -, if it should be negative,
+	// convert 12 bit to 16 bit and use the 2s compliment.
+	if(digitalTemp > 0x7FF)
+	{
+	digitalTemp |= 0xF000;
+	}
+	
+	// Convert digital reading to analog temperature (1-bit is equal to 0.0625 C)
+
+	free(data);
+
+	pthread_mutex_unlock(&i2c_mutex);
+
+	return (digitalTemp*multiplier);
+
+
+	//	free(data);
+
+}
+
+/*********************************************************************************************** 
+ * @brief Read thigh
+ *
+ * Read the value from thigh 
+ *
+ * @param :null
+ * @return double: tempearture register high value
+ *********************************************************************************************/
+
+
+double get_Thigh(request_cmd_t request){
+
+	pthread_mutex_lock(&i2c_mutex);
+	double multiplier =0;
+	uint8_t *data = malloc(sizeof(uint8_t) * 2);
+	if(request == REQUEST_CELSIUS){
+		multiplier =0.0625;
+	}
+	else if(request == REQUEST_KELVIN){
+		multiplier =0.0625;
+	}	
+	else{
+		multiplier = 0.0625;
+	}
+	int status = temperature_read_reg(THIGH_REG,data,ALL);
+	if(status !=READ_REG_SUCCESS){
+
+		perror("Reading THIGH register failed");
+
+
+	}
+
+	//printf("%x %x",*(data + 0),*(data +1));
+
+	int32_t digitalTemp =0;
+
+	
+	// Combine bytes to create a signed int 
+	digitalTemp = (*(data + 1) << 4) | (*(data + 0) >> 4);
+	// Temperature data can be + or -, if it should be negative,
+	// convert 12 bit to 16 bit and use the 2s compliment.
+	if(digitalTemp > 0x7FF)
+	{
+	digitalTemp |= 0xF000;
+	}
+	
+	// Convert digital reading to analog temperature (1-bit is equal to 0.0625 C)
+
+	free(data);
+
+	pthread_mutex_unlock(&i2c_mutex);
+
+	return (digitalTemp*multiplier);
+
+
+	//	free(data);
+
+}
+
+/*********************************************************************************************** 
+ * @brief set sensor in shutdown mode
+ *
+ * set the configuration register in shutdown mode
+ *
+ * @param :data: To be set in shutdown mode or not
+ * @return :null
+ *********************************************************************************************/
+
+
+void configure_temp_shutdown(uint16_t data){
+
+	pthread_mutex_lock(&i2c_mutex);
+	temperature_write_reg(configuration_reg,data);
+	pthread_mutex_unlock(&i2c_mutex);
+}
+	
+/*********************************************************************************************** 
+ * @brief Read fault bits from configuration register
+ *
+ *  Read fault bits
+ *
+ * @param :null
+ * @return :uint8_t
+ *********************************************************************************************/
+
+
+uint8_t read_temp_fault(){
+
+	pthread_mutex_lock(&i2c_mutex);
+	uint8_t *data = malloc(sizeof(uint8_t)*2);
+	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,data,FAULT);
+	pthread_mutex_unlock(&i2c_mutex);
+	return *(data +0);
+}
+
+/*********************************************************************************************** 
+ * @brief set sensor in EM mode
+ *
+ * set the configuration register in EM mode
+ *
+ * @param :data: To be set in EM mode or not
+ * @return :null
+ *********************************************************************************************/
+
+
+void configure_temp_EMmode(uint16_t data){
+
+	pthread_mutex_lock(&i2c_mutex);
+	temperature_write_reg(CONFIGURATION_REG,data);
+	pthread_mutex_unlock(&i2c_mutex);
+}
+
+
+/*********************************************************************************************** 
+ * @brief Read EM mode from configuration register
+ *
+ *  Read Em mode bits
+ *
+ * @param :null
+ * @return :uint8_t
+ *********************************************************************************************/
+
+
+uint8_t read_temp_EM(){
+
+	pthread_mutex_lock(&i2c_mutex);
+	uint8_t *data = malloc(sizeof(uint8_t)*2);
+	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,data,EM);
+	pthread_mutex_unlock(&i2c_mutex);
+	return *(data +0);
+}
+
+/*********************************************************************************************** 
+ * @brief set sensor conversion rate
+ *
+ * set the conversion rate of temperature sensor
+ *
+ * @param :data: Set the conversion rate
+ * @return :null
+ *********************************************************************************************/
+
+
+void configure_temp_conversion_rate(uint16_t data){
+
+	pthread_mutex_lock(&i2c_mutex);
+	temperature_write_reg(CONFIGURATION_REG,data);
+	pthread_mutex_unlock(&i2c_mutex);
+}
+/*********************************************************************************************** 
+ * @brief Read conversion rate from configuration register
+ *
+ *  Read Conversion rate
+ *
+ * @param :null
+ * @return :uint8_t
+ *********************************************************************************************/
+
+
+uint8_t read_temp_conversion(){
+
+	pthread_mutex_lock(&i2c_mutex);
+	uint8_t *data = malloc(sizeof(uint8_t)*2);
+	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,data,CONVERSION_RATE);
+	pthread_mutex_unlock(&i2c_mutex);
+	return *(data +0);
+}

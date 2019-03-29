@@ -80,6 +80,7 @@ void *temperature_thread( void* arg){
 	while(1){
 
 		temperature_data = get_temperature(client_temperature_type_request);
+		//printf("\n\rTlow = %lf , Thigh =%lf",get_Tlow(client_temperature_type_request),get_Thigh(client_temperature_type_request));
 		//sleep(1);
 		if(client_request.client_get_temp_flag == 1){
 			//send message through queue to server task
