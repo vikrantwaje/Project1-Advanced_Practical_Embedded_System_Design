@@ -352,6 +352,27 @@ sensor_status_t set_integration_time(uint8_t INTEGRATION)
 	return WRITE_REG_SUCCESS;
 }
 
+/***********************************************************************************************  
+ * @brief Read identification register 
+ *
+ *Responsible for reading identification register 
+ *
+ * @param null
+ *
+ * @return uint8_t returns the identification value
+ *********************************************************************************************/
+uint8_t read_identification_reg(){
+	sensor_status_t status = 0;
+	pthread_mutex_lock(&i2c_mutex);
+	
+	uint8_t *data = malloc(sizeof(uint8_t));
+	status = light_read_reg(ID_REG,data,ALL);
+	pthread_mutex_unlock(&i2c_mutex);
+	return (*data >>4);
+
+
+
+}
 
 /***********************************************************************************************  
  * @brief Get Integration Time 

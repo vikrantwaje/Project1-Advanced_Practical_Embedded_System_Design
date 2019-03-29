@@ -27,6 +27,8 @@
   bool client_get_system_stat_flag;
   bool client_get_lux_flag;
  */
+
+pthread_t thread1,thread2,thread3,thread4;
 mqd_t mqdes_server;
 client_request_t client_request;
 request_cmd_t client_temperature_type_request ;

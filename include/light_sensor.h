@@ -160,7 +160,17 @@ sensor_status_t set_integration_time(uint8_t INTEGRATION);
  *********************************************************************************************/
 sensor_status_t get_integration_time(void);
 
-
+/***********************************************************************************************  
+ * @brief Read identification register 
+ *
+ *Responsible for reading identification register 
+ *
+ * @param null
+ *
+ * @return uint8_t returns the identification value
+ *********************************************************************************************/
+uint8_t read_identification_reg();
+	
 /***********************************************************************************************  
  * @brief Set gain 
  *
