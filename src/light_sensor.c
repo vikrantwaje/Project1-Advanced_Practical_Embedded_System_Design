@@ -383,9 +383,9 @@ sensor_status_t read_identification_reg(uint8_t *data){
 		return READ_REG_FAIL;
 		//Should set a flag and return as required: error/success, to avoid deadlock
 	}
-
+	*data = *data >>4;
 	pthread_mutex_unlock(&i2c_mutex);
-	return (*data >>4);
+	return READ_REG_SUCCESS;
 
 
 

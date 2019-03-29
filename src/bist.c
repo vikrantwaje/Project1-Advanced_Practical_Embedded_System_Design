@@ -51,7 +51,7 @@ void built_in_self_test(){
 
 	sensor_stat =read_identification_reg(data);	
 	if(*data != 0x05){
-		printf("\n\rLight sensor initialisation failed");
+		printf("\n\rval = %xLight sensor initialisation failed",*data);
 	}
 
 	//Check whether threads have been created successfully or not
