@@ -245,6 +245,18 @@ sensor_status_t get_interrupt_ctrl_reg(uint8_t *data);
  *********************************************************************************************/
 sensor_status_t get_low_threshold(uint16_t *data);
 
+/***********************************************************************************************  
+ * @brief Write high threshold
+ *
+ *Write to Registers THRESHIGHLOW and THRESHHIGHHIGH provide the low byte and
+ * high byte, respectively, of the lower interrupt threshold 
+ *
+* @param uint16_t *data
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
+
+sensor_status_t set_high_threshold(uint16_t data);
 
 /***********************************************************************************************  
  * @brief Read high threshold

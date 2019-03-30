@@ -258,6 +258,44 @@ double get_temperature(request_cmd_t request){
 }
 
 /*********************************************************************************************** 
+ * @brief Write tlow
+ *
+ * Write the value of tlow 
+ *
+ * @param :null
+ * @return sensor_stat_t: Status of I2C operation
+ *********************************************************************************************/
+sensor_status_t write_tlow(float temperature){
+
+	sensor_status_t sensor_stat = 0;	
+	pthread_mutex_lock(&i2c_mutex);
+	uint8_t *data = malloc(sizeof(uint8_t)*2);
+	if(temperature > 150.0){
+		temperature = 150.0;
+	}
+	if(temperature <-55){
+		temperature = -55.0;
+	}
+  	
+	temperature = temperature/0.0625;
+	*(data + 1) =(int)(temperature) >> 4;
+	*(data +0)= (int)(temperature) << 4;
+	sensor_stat = temperature_write_reg(TLOW_REG,(*(data + 0) | *(data + 1) << 8));
+	if( sensor_stat != WRITE_REG_SUCCESS )
+	{
+		perror("Configuring Temp low registerfailed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return WRITE_REG_FAIL;
+	}
+	free(data);
+	pthread_mutex_unlock(&i2c_mutex);
+	return WRITE_REG_SUCCESS;
+
+
+}
+
+/*********************************************************************************************** 
  * @brief Read tlow
  *
  * Read the value from tlow 
@@ -311,6 +349,43 @@ double get_Tlow(request_cmd_t request){
 	}
 	else
 		return(digitalTemp*multiplier);
+}
+/*********************************************************************************************** 
+ * @brief Write thigh
+ *
+ * Write the value of thigh 
+ *
+ * @param :null
+ * @return sensor_stat_t: Status of I2C operation
+ *********************************************************************************************/
+sensor_status_t write_thigh(float temperature){
+
+	sensor_status_t sensor_stat = 0;	
+	pthread_mutex_lock(&i2c_mutex);
+	uint8_t *data = malloc(sizeof(uint8_t)*2);
+	if(temperature > 150.0){
+		temperature = 150.0;
+	}
+	if(temperature <-55){
+		temperature = -55.0;
+	}
+  	
+	temperature = temperature/0.0625;
+	*(data + 1) =(int)(temperature) >> 4;
+	*(data +0)= (int)(temperature) << 4;
+	sensor_stat = temperature_write_reg(THIGH_REG,(*(data + 0) | *(data + 1) << 8));
+	if( sensor_stat != WRITE_REG_SUCCESS )
+	{
+		perror("Configuring Temp low registerfailed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return WRITE_REG_FAIL;
+	}
+	free(data);
+	pthread_mutex_unlock(&i2c_mutex);
+	return WRITE_REG_SUCCESS;
+
+
 }
 
 /*********************************************************************************************** 
@@ -405,7 +480,47 @@ sensor_status_t configure_temp_shutdown(void){
 	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
-	
+
+/*********************************************************************************************** 
+ * @brief Write fault bits
+ *
+ * Write the fault bits in configuration register 
+ *
+ * @param :null
+ * @return sensor_stat_t: Status of I2C operation
+ *********************************************************************************************/
+sensor_status_t configure_temp_fault(uint8_t mode){
+
+	pthread_mutex_lock(&i2c_mutex);
+	uint8_t *data = malloc(sizeof(uint8_t)*2);
+	sensor_status_t sensor_stat = temperature_read_reg(CONFIGURATION_REG,data, ALL);
+	if( sensor_stat != READ_REG_SUCCESS )
+	{
+		perror("Reading fault bits failed failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_REG_FAIL;
+	}
+
+	*(data + 1) &= 0xE7;	
+   	*(data + 1) |= mode << 3;	
+
+
+	sensor_stat = temperature_write_reg(CONFIGURATION_REG,(*(data + 0) | *(data + 1) << 8));
+	if( sensor_stat != WRITE_REG_SUCCESS )
+	{
+		perror("Configuring fault bits failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return WRITE_REG_FAIL;
+	}
+	free(data);
+	pthread_mutex_unlock(&i2c_mutex);
+	return WRITE_REG_SUCCESS;
+
+}
+
+
 /*********************************************************************************************** 
  * @brief Read fault bits from configuration register
  *

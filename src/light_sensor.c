@@ -1,3 +1,6 @@
+
+
+
 /********************************************************************************************
 *					FILENAME: light_sensor.c
 **********************************************************************************************/
@@ -7,7 +10,6 @@
  * Date Created: March 16, 2019
  * Course: Advanced Embedded Software Development
  * Project: 1
-
  * Reference[1]: http://www.sparkfun.com/products/14350
  * 
  * 
@@ -649,7 +651,5 @@ sensor_status_t get_high_threshold(uint16_t *data)
 	pthread_mutex_unlock(&i2c_mutex);
 	return WRITE_REG_SUCCESS;
 }
-
-// for reading low/high threshold data, write_two_reg required
 
 

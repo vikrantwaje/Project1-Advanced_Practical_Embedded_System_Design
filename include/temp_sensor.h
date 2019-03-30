@@ -1,8 +1,8 @@
 #ifndef SRC_TEMP_H_
 #define SRC_TEMP_H_
 /********************************************************************************************
-*					FILENAME:temp_sensor.h
-**********************************************************************************************/
+ *					FILENAME:temp_sensor.h
+ **********************************************************************************************/
 /* Title: temp_sensor.h
  * Brief: Responsible for providing various helper function needed to communicate with temperature sensor
  * Author: Tanmay Chaturvedi, Vikrant Waje
@@ -15,8 +15,8 @@
  * 
  * */
 /****************************************************************************************
-*					HEADER FILE SECTION
-*****************************************************************************************/
+ *					HEADER FILE SECTION
+ *****************************************************************************************/
 #include<stdio.h>
 #include<unistd.h>
 #include<fcntl.h>
@@ -29,8 +29,8 @@
 #include"server.h"
 #include"ipc.h"
 /****************************************************************************************
-*					MACROS AND ENUMS
-*****************************************************************************************/
+ *					MACROS AND ENUMS
+ *****************************************************************************************/
 #define TEMP_SENSOR_I2C_ADDRESS (0x48)
 #define TEMPERATURE_REG		(0x00)
 #define CONFIGURATION_REG	 (0x01)
@@ -67,13 +67,13 @@ typedef enum{
 
 
 /****************************************************************************************
-*				GLOBAL VARIABLE SECTION
-*****************************************************************************************/
+ *				GLOBAL VARIABLE SECTION
+ *****************************************************************************************/
 
 
 /*************************************************************************************
-*				FUNCTION PROTOTYPE SECTION
-*****************************************************************************************/
+ *				FUNCTION PROTOTYPE SECTION
+ *****************************************************************************************/
 /***********************************************************************************************
  * @brief write pointer register
  *
@@ -122,8 +122,19 @@ sensor_status_t temperature_read_reg(uint8_t address, uint8_t *data,reg_read_cmd
 
 double get_temperature(request_cmd_t request);
 
+
+/*********************************************************************************************** 
+ * @brief Write tlow
+ *
+ * Write the value of tlow 
+ *
+ * @param :null
+ * @return sensor_stat_t: Status of I2C operation
+ *********************************************************************************************/
+sensor_status_t write_tlow(float temperature);
+
 /***********************************************************************************************  
-* @brief Get Tlow register
+ * @brief Get Tlow register
  *
  * Read the value from tlow register
  *
@@ -134,10 +145,19 @@ double get_temperature(request_cmd_t request);
 
 double get_Tlow(request_cmd_t request);
 
+/*********************************************************************************************** 
+ * @brief Write thigh
+ *
+ * Write the value of thigh 
+ *
+ * @param :null
+ * @return sensor_stat_t: Status of I2C operation
+ *********************************************************************************************/
+sensor_status_t write_thigh(float temperature);
 
 
 /***********************************************************************************************  
-* @brief Get Thigh register
+ * @brief Get Thigh register
  *
  * Read the value from thigh register
  *
@@ -160,6 +180,16 @@ double get_Thigh(request_cmd_t request);
 
 sensor_status_t configure_temp_shutdown(void);
 
+
+/*********************************************************************************************** 
+ * @brief Write fault bits
+ *
+ * Write the fault bits in configuration register 
+ *
+ * @param :null
+ * @return sensor_stat_t: Status of I2C operation
+ *********************************************************************************************/
+sensor_status_t configure_temp_fault(uint8_t mode);
 
 /*********************************************************************************************** 
  * @brief Read fault bits from configuration register
