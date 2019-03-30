@@ -78,42 +78,86 @@ void *socket_thread( void* arg){
  *********************************************************************************************/
 
 void *temperature_thread( void* arg){
-	double temperature_data = 0; 
+	double temperature_data = 0;
+	temperature_data = get_temperature(client_temperature_type_request); 
 	while(1){
 
 		//printf("\n\rTlow = %lf , Thigh =%lf",get_Tlow(client_temperature_type_request),get_Thigh(client_temperature_type_request));
 		//sleep(1);
 		if(client_request.client_get_temp_flag == 1){
-		
-			temperature_data = get_temperature(client_temperature_type_request);
+
+
 
 			//send message through queue to server task
 			//printf("\n\rTemperature data called from client: %lf",temperature_data);
-			client_data.sensor_data = temperature_data;
+
+
 			if(client_temperature_type_request == REQUEST_CELSIUS){	
-		
-			strcpy(client_data.sensor_string,"Temperature value in celsius:");
-;
+
+				temperature_data = get_temperature(client_temperature_type_request);
+
+				strcpy(client_data.sensor_string,"Temperature value in celsius:");
+
+				strcpy(log_temp_data_src.source_ID,"EXT REQ(TEMP IN C)");	
+			
+				client_data.sensor_data = temperature_data;
+				log_temp_data_src.sensor_data = temperature_data;
+				
 			}
 			else if(client_temperature_type_request == REQUEST_KELVIN){	
-			strcpy(client_data.sensor_string,"Temperature value in Kelvin:");
+				temperature_data = get_temperature(client_temperature_type_request);
+				log_temp_data_src.sensor_data = temperature_data;
+				client_data.sensor_data = temperature_data;
+				strcpy(log_temp_data_src.source_ID,"EXT REQ(TEMP IN K)");	
 
+				strcpy(client_data.sensor_string,"Temperature value in Kelvin:");
 			}
-			else if(client_temperature_type_request == REQUEST_FAHRENHEIT){	
-			strcpy(client_data.sensor_string,"Temperature value in Fahrenheit:");
+			else /*(client_temperature_type_request == REQUEST_FAHRENHEIT)*/{	
+				temperature_data = get_temperature(client_temperature_type_request);
+				log_temp_data_src.sensor_data = temperature_data;
+				client_data.sensor_data = temperature_data;
+				
+				strcpy(log_temp_data_src.source_ID,"EXT REQ(TEMP IN F)");
 
+				strcpy(client_data.sensor_string,"Temperature value in Fahrenheit:");
 			}
+
+
 			if(mq_send(mqdes_server,(char *)&client_data,sizeof(client_data_t),0)==-1){
 				perror("Sending temperature value to server unsuccessfull");
 			}
 			client_request.client_get_temp_flag =0;
+
+
+
+			pthread_mutex_lock(&logger_queue_mutex);
+
+			log_temp_data_src.timestamp = record_time();
+			log_temp_data_src.log_level = 3;
+
+			if(mq_send(mqdes_logger,(char *)&log_temp_data_src,sizeof(log_t),0)==-1){
+				perror("Sending temperature value to logger unsuccessfull");
+			}
+			pthread_mutex_unlock(&logger_queue_mutex);
+
+
+
+
 		}
 		if(logger_flag.log_temp_sensor_flag == 1){
-			temperature_data = get_temperature(client_temperature_type_request);
 
 			log_temp_data_src.timestamp = record_time(); 
 			log_temp_data_src.log_level = 1;
-			strcpy(log_temp_data_src.source_ID,"Temp value:");
+			if(client_temperature_type_request == REQUEST_CELSIUS){
+			strcpy(log_temp_data_src.source_ID,"TEMPERATURE(C)");
+
+			}
+			else if(client_temperature_type_request == REQUEST_FAHRENHEIT){
+				strcpy(log_temp_data_src.source_ID,"TEMPERATURE(F)");
+			}
+			else if(client_temperature_type_request == REQUEST_KELVIN){
+				strcpy(log_temp_data_src.source_ID,"TEMPERATURE(K)");
+			}
 			log_temp_data_src.sensor_data = temperature_data;	
 			pthread_mutex_lock(&logger_queue_mutex);
 			if(mq_send(mqdes_logger,(char *)&log_temp_data_src,sizeof(log_t),0)==-1){
@@ -164,18 +208,22 @@ void *light_sensor_thread( void* arg){
 	while(1){
 
 
-				//client_get_lux_flag = 1;
+		//client_get_lux_flag = 1;
 		if(client_request.client_get_lux_flag == 1){
 			//send message through queue to server task
-		lux_data = read_lux(); 
+			lux_data = read_lux(); 
 
 			if ( lux_data >= 75 )
 			{
 				strcpy(client_data.sensor_string,"Lux value in lumens(STATE=LIGHT):"); 	
+				strcpy(log_light_data_src.source_ID,"EXT REQ(LIGHT STATE)");
+
 			}
 			else if ( lux_data < 75 ) 
 			{
 				strcpy(client_data.sensor_string,"Lux value in lumens(STATE=DARK):"); 	
+				strcpy(log_light_data_src.source_ID,"EXT REQ(DARK STATE)");
+
 			}
 			//	printf("\n\rLight data called from client:%lf",lux_data);
 			client_data.sensor_data = lux_data;	
@@ -183,15 +231,34 @@ void *light_sensor_thread( void* arg){
 				perror("Sending light value to server unsuccessfull");
 			}
 
+			pthread_mutex_lock(&logger_queue_mutex);
+
+			log_light_data_src.timestamp = record_time();
+			log_light_data_src.log_level = 4;
+
+			if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
+				perror("Sending light value to logger unsuccessfull");
+			}
+			pthread_mutex_unlock(&logger_queue_mutex);
+
+
+			
+			
 
 			client_request.client_get_lux_flag = 0;
 
 		}
 		if(logger_flag.log_light_sensor_flag == 1){
-	lux_data = read_lux(); 
+			lux_data = read_lux(); 
 			log_light_data_src.timestamp = record_time(); 
 			log_light_data_src.log_level = 2;
-			strcpy(log_light_data_src.source_ID,"Light value:");
+			if( lux_data <75){
+				strcpy(log_light_data_src.source_ID,"LIGHT(DARK STATE)");
+			}
+			else if(lux_data >=75){
+				strcpy(log_light_data_src.source_ID,"LIGHT(LIGHT STATE)");
+
+			}
 			log_light_data_src.sensor_data = lux_data;	
 			pthread_mutex_lock(&logger_queue_mutex);
 			if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
@@ -203,8 +270,8 @@ void *light_sensor_thread( void* arg){
 
 		}
 
-	if(heartbeat_flag.heartbeat_light_sensor_flag == 1){
-		lux_data = read_lux(); 
+		if(heartbeat_flag.heartbeat_light_sensor_flag == 1){
+			lux_data = read_lux(); 
 			heartbeat_light_data_src.timestamp = record_time(); 
 			heartbeat_light_data_src.log_level = 2;
 			strcpy(heartbeat_light_data_src.source_ID,"Light sensor alive:");
