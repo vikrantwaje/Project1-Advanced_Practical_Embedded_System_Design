@@ -45,7 +45,7 @@
 void open_message_queue_server(mqd_t *mqdes, struct mq_attr * attribute){
 	attribute->mq_maxmsg= 10;
 	attribute->mq_msgsize = sizeof(client_data_t);
-	*mqdes = mq_open("/msgqueue1",O_CREAT|O_RDWR,0666,attribute); 
+	*mqdes = mq_open("/msgqueue4",O_CREAT|O_RDWR,0666,attribute); 
 	if(*mqdes == -1){
 		perror("Failed to open message queue fro server");
 
@@ -70,7 +70,7 @@ void close_message_queue_server(mqd_t *mqdes){
 		perror("Message queue for server failed to close");
 	}
 
-	if(mq_unlink("/msgqueue1")<0){
+	if(mq_unlink("/msgqueue4")<0){
 		perror("Message queue for server failed to unlinked");
 	}
 
@@ -90,7 +90,7 @@ void close_message_queue_server(mqd_t *mqdes){
 void open_message_queue_logger(mqd_t *mqdes, struct mq_attr * attribute){
 	attribute->mq_maxmsg= 10;
 	attribute->mq_msgsize = sizeof(log_t);
-	*mqdes = mq_open("/msgqueue2",O_CREAT|O_RDWR,0666,attribute); 
+	*mqdes = mq_open("/msgqueue5",O_CREAT|O_RDWR,0666,attribute); 
 	if(*mqdes == -1){
 		perror("Failed to open message queue for logger");
 
@@ -114,7 +114,7 @@ void close_message_queue_logger(mqd_t *mqdes){
 		perror("Message queue for logger failed to close");
 	}
 
-	if(mq_unlink("/msgqueue2")<0){
+	if(mq_unlink("/msgqueue5")<0){
 		perror("Message queue for logger failed to unlinked");
 	}
 
@@ -135,7 +135,7 @@ void close_message_queue_logger(mqd_t *mqdes){
 void open_message_queue_heartbeat(mqd_t *mqdes, struct mq_attr * attribute){
 	attribute->mq_maxmsg= 10;
 	attribute->mq_msgsize = sizeof(heartbeat_data_t);
-	*mqdes = mq_open("/msgqueue3",O_CREAT|O_RDWR,0666,attribute); 
+	*mqdes = mq_open("/msgqueue6",O_CREAT|O_RDWR,0666,attribute); 
 	if(*mqdes == -1){
 		perror("Failed to open message queue for logging heartbeat");
 
@@ -160,7 +160,7 @@ void close_message_queue_heartbeat(mqd_t *mqdes){
 		perror("Message queue for heartbeat failed to close");
 	}
 
-	if(mq_unlink("/msgqueue3")<0){
+	if(mq_unlink("/msgqueue6")<0){
 		perror("Message queue for heartbeat failed to unlinked");
 	}
 

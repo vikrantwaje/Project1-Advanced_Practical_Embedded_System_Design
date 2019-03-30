@@ -89,8 +89,20 @@ void *temperature_thread( void* arg){
 
 			//send message through queue to server task
 			//printf("\n\rTemperature data called from client: %lf",temperature_data);
-			strcpy(client_data.sensor_string,"Temperature value:");
-			client_data.sensor_data = temperature_data;	
+			client_data.sensor_data = temperature_data;
+			if(client_temperature_type_request == REQUEST_CELSIUS){	
+		
+			strcpy(client_data.sensor_string,"Temperature value in celsius:");
+;
+			}
+			else if(client_temperature_type_request == REQUEST_KELVIN){	
+			strcpy(client_data.sensor_string,"Temperature value in Kelvin:");
+
+			}
+			else if(client_temperature_type_request == REQUEST_FAHRENHEIT){	
+			strcpy(client_data.sensor_string,"Temperature value in Fahrenheit:");
+
+			}
 			if(mq_send(mqdes_server,(char *)&client_data,sizeof(client_data_t),0)==-1){
 				perror("Sending temperature value to server unsuccessfull");
 			}
@@ -152,14 +164,14 @@ void *light_sensor_thread( void* arg){
 	while(1){
 
 
-		lux_data = read_lux(); 
-
-		//client_get_lux_flag = 1;
+				//client_get_lux_flag = 1;
 		if(client_request.client_get_lux_flag == 1){
 			//send message through queue to server task
+		lux_data = read_lux(); 
+
 
 			//	printf("\n\rLight data called from client:%lf",lux_data);
-			strcpy(client_data.sensor_string,"Lux value:");
+			strcpy(client_data.sensor_string,"Lux value in lumens:");
 			client_data.sensor_data = lux_data;	
 			if(mq_send(mqdes_server,(char *)&client_data,sizeof(client_data_t),0)==-1){
 				perror("Sending light value to server unsuccessfull");
@@ -170,6 +182,7 @@ void *light_sensor_thread( void* arg){
 
 		}
 		if(logger_flag.log_light_sensor_flag == 1){
+	lux_data = read_lux(); 
 			log_light_data_src.timestamp = record_time(); 
 			log_light_data_src.log_level = 2;
 			strcpy(log_light_data_src.source_ID,"Light value:");
@@ -185,6 +198,7 @@ void *light_sensor_thread( void* arg){
 		}
 
 	if(heartbeat_flag.heartbeat_light_sensor_flag == 1){
+		lux_data = read_lux(); 
 			heartbeat_light_data_src.timestamp = record_time(); 
 			heartbeat_light_data_src.log_level = 2;
 			strcpy(heartbeat_light_data_src.source_ID,"Light sensor alive:");
