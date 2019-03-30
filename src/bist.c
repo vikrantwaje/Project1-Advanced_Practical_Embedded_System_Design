@@ -141,15 +141,16 @@ void built_in_self_test(){
 			printf("\n\rLight sensor initialisation failed. Failed to read Interrupt control register bits");
 		}	
 
-		/*ret_status = set_high_threshold(THRESHOLD_HIGH);
+		ret_status = set_high_threshold(THRESHOLD_HIGH);
 		if(ret_status!= WRITE_REG_SUCCESS){
 			printf("\n\rLight sensor initialisation failed. Failed to write Interrupt high threshold register ");
 		}
-	
+			
 		ret_status = get_high_threshold(data_16);
 		if( *data_16 !=THRESHOLD_HIGH && ret_status!= READ_REG_SUCCESS ){
 			printf("\n\rLight sensor initialisation failed. Failed to read Interrupt high threshold,val =%ld",*(data_16));
-		}*/
+		}
+		printf("\n\rValue = %ld",*(data_16));
 		//Check whether threads have been created successfully or not
 
 		/* Socket thread creation*/

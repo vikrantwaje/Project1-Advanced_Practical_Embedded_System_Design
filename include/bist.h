@@ -30,7 +30,8 @@
 ****************************************************************************************/
 #define TLOW_VAL 	(50.0)
 #define THIGH_VAL	(100.0)
-#define THRESHOLD_HIGH	(50)					
+#define THRESHOLD_HIGH	(100)
+#define THRESHOLD_LOW	(60)					
 
 /**************************************************************************************
 *					FUNCTION PROTOTYPE
