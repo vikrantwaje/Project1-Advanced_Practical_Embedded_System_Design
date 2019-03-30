@@ -57,13 +57,13 @@ int main()
 				\n\r***********************************************************************************\n\r");
 
 		printf("\nEnter any of the following commands: \n");
-		printf("\"1.Request temperature sensor values in Celsius\n");
-		printf("\"2.Request temperature sensor values in Kelvin \n");
-		printf("\"3.Request temperature sensor values in Fahrenheit\n");
-		printf("\"4.Request light sensor values \n");
-		printf("\"5.Turn all LED ON \n");
-		printf("\"6.Turn all LED OFF \n");
-		printf("\"7.Close connection \n\n");
+		printf("\"[1] Request temperature sensor values in Celsius\n");
+		printf("\"[2] Request temperature sensor values in Kelvin \n");
+		printf("\"[3] Request temperature sensor values in Fahrenheit\n");
+		printf("\"[4] Request light sensor values \n");
+		printf("\"[5] Turn all LED ON \n");
+		printf("\"[6] Turn all LED OFF \n");
+		printf("\"[7] Close connection \n\n");
 
 	
 		printf("\n\rEnter command here: ");

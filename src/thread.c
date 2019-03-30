@@ -169,9 +169,15 @@ void *light_sensor_thread( void* arg){
 			//send message through queue to server task
 		lux_data = read_lux(); 
 
-
+			if ( lux_data >= 75 )
+			{
+				strcpy(client_data.sensor_string,"Lux value in lumens(STATE=LIGHT):"); 	
+			}
+			else if ( lux_data < 75 ) 
+			{
+				strcpy(client_data.sensor_string,"Lux value in lumens(STATE=DARK):"); 	
+			}
 			//	printf("\n\rLight data called from client:%lf",lux_data);
-			strcpy(client_data.sensor_string,"Lux value in lumens:");
 			client_data.sensor_data = lux_data;	
 			if(mq_send(mqdes_server,(char *)&client_data,sizeof(client_data_t),0)==-1){
 				perror("Sending light value to server unsuccessfull");
