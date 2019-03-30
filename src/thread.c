@@ -206,7 +206,7 @@ void *temperature_thread( void* arg){
 void *light_sensor_thread( void* arg){
 	double lux_data = 0;
 	double force_lux_data = 0;
-	last_state_t last_state = LIGHT;
+	last_state_t last_state = INITIAL;
 		while(1){
 
 	
@@ -244,6 +244,12 @@ void *light_sensor_thread( void* arg){
 
 		}
 		else{
+		if(lux_data>=75){
+		last_state = LIGHT;
+		}
+		else if(lux_data<75){
+		last_state = DARK;
+		}
 		//	printf("\n\rNo change");
 		}
 	
@@ -357,8 +363,13 @@ void *logger_thread( void* arg){
 		log_file = fopen("log.txt","a+");
 		//	printf("\n\r[%lf] [%d] [%s] [%lf]",log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
 		//	pthread_mutex_unlock(&logger_queue_mutex);
+		if(strcmp(log_temp_data.source_ID,"BIST SUCCESS")==0){
+		LOG_GENERAL(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID);
 
+		}
+		else{
 		LOG(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
+		}
 		fclose(log_file);
 
 	}

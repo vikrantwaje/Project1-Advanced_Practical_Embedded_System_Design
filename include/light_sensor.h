@@ -41,7 +41,7 @@ typedef enum{
 }read_cmd_t;
 
 typedef enum{
-	DARK,LIGHT
+	INITIAL,DARK,LIGHT
 }last_state_t;
 // typedef enum{
 // 	INTERRUPT_ON, INTERRUPT_OFF

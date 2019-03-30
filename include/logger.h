@@ -27,7 +27,7 @@
 
 
 #define LOG(fptr,time,log_level,source_id,sensor_value) fprintf(fptr,"\n %c%lf%c [%s]: loglevel:%d sensor value: %lf ",'[',time,']',source_id,log_level,sensor_value);	//Log into the file
-
+#define LOG_GENERAL(fptr,time,log_level,source_id) fprintf(fptr,"\n %c%lf%c [%s]: loglevel:%d  ",'[',time,']',source_id,log_level);	//Log into the file
 
 typedef struct{
 	double timestamp;

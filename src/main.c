@@ -44,20 +44,16 @@ int main()
 	  if(stat !=WRITE_REG_SUCCESS){
 	  perror("Power ON of light sensor failed");
 	  }*/
-	create_log_timer();
-	create_heartbeat_timer();
-	led_init(RED_LED);
-	led_init(BLUE_LED);
-	led_init(GREEN_LED);
-	led_init(YELLOW_LED);
+	
 
-
-
-
-	built_in_self_test();
 	open_message_queue_server(&mqdes_server, &attribute_server);
 	open_message_queue_logger(&mqdes_logger,&attribute_logger);
 	open_message_queue_heartbeat(&mqdes_heartbeat,&attribute_heartbeat);
+
+
+	built_in_self_test();
+	create_log_timer();
+	create_heartbeat_timer();
 
 
 	while(1){

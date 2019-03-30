@@ -23,7 +23,9 @@
 #include "logger.h"
 #include "ipc.h"
 #include"i2c_status.h"
+#include"timer.h"
 #include"thread.h"
+#include"synchronization.h"
 #include<pthread.h>
 /**************************************************************************************
 *					     MACROS
