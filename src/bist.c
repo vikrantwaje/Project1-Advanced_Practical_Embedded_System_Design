@@ -71,7 +71,7 @@ void built_in_self_test(){
 
 
 		ret_status = read_temp_fault(data);
-		if(((*(data) & 0x03) !=FAULT_2) && ret_status!=READ_REG_SUCCESS){
+		if(((*(data) & FAULT_MASK) !=FAULT_2) && ret_status!=READ_REG_SUCCESS){
 			printf("\n\rTemperature sensor initialisation failed. Incorrect fault bit values data = %x",*data);
 		}
 
@@ -81,7 +81,7 @@ void built_in_self_test(){
 		}
 
 		ret_status = read_temp_EM(data);
-		if((*(data) & 0x01)!=0x00 && ret_status!=READ_REG_SUCCESS){
+		if((*(data) & EM_MASK)!=EM_OFF && ret_status!=READ_REG_SUCCESS){
 			printf("\n\rTemperature sensor initialisation failed. Incorrect EM bit value data =%x",*data);
 		}
 
@@ -91,13 +91,13 @@ void built_in_self_test(){
 		}
 
 		ret_status = read_temp_conversion_rate(data);
-		if((*(data) & 0x03)!=0x02 && ret_status!=READ_REG_SUCCESS){
+		if((*(data) & CONVERSION_RATE_MASK)!=CONVERSION_RATE_4 && ret_status!=READ_REG_SUCCESS){
 			printf("\n\rTemperature sensor initialisation failed. Incorrect conversion rate bit value data =%x",*data);
 		}		
 
 
 		ret_status = read_temp_sensor_resolution(data);
-		if((*(data) & 0x03)!=0x03 && ret_status!=READ_REG_SUCCESS){
+		if((*(data) & RESOLUTION_MASK)!=SENSOR_RESOLUTION_12_BIT && ret_status!=READ_REG_SUCCESS){
 			printf("\n\rTemperature sensor initialisation failed. Incorrect sensor resolution bit value data =%x",*data);
 		}		
 		// Check whether light sensor is working properly
@@ -108,7 +108,7 @@ void built_in_self_test(){
 		}
 
 		sensor_stat =read_identification_reg(data);	
-		if(*data != 0x05 && sensor_stat!=READ_REG_SUCCESS){
+		if(*data != IDENTIFICATION_MASK && sensor_stat!=READ_REG_SUCCESS){
 			printf("\n\rLight sensor initialisation failed. Incorrect identification read data = %d",*data);
 		}
 
@@ -118,7 +118,7 @@ void built_in_self_test(){
 		}
 
 		ret_status = get_integration_time(data);
-		if((*(data) & 0x03)!=0x02 && ret_status!=READ_REG_SUCCESS){
+		if((*(data) & INTEGRATION_MASK)!=INTEGRATION_402 && ret_status!=READ_REG_SUCCESS){
 			printf("\n\rLight sensor initialisation failed. Incorrect integration rate bit  data =%x",*data);
 		}		
 
@@ -128,7 +128,7 @@ void built_in_self_test(){
 		}
 
 		ret_status = get_gain(data);
-		if((*(data) & 0x01)!=0x01 && ret_status!=READ_REG_SUCCESS){
+		if((*(data) & GAIN_MASK)!=HIGH_GAIN && ret_status!=READ_REG_SUCCESS){
 			printf("\n\rLight sensor initialisation failed. Incorrect gain bit  data =%x",*data);
 		}
 

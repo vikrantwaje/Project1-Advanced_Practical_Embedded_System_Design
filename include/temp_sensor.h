@@ -41,19 +41,25 @@
 #define CONVERSION_RATE_1	((0x01))
 #define CONVERSION_RATE_4	((0x02))
 #define CONVERSION_RATE_8	((0x03))
+#define CONVERSION_RATE_MASK	(0x03)
+
 
 #define SHUTDOWN_ON		((0x01))
 #define SHUTDOWN_OFF		((0x00))
 
 #define EM_ON			((0x01))
 #define EM_OFF			((0x00))
+#define EM_MASK			(0x01)
+
 
 #define FAULT_1			((0x00)) 
 #define FAULT_2			((0x01))
 #define FAULT_3			((0x02))
 #define FAULT_4			((0x03))
+#define FAULT_MASK		(0x03)
 
-
+#define RESOLUTION_MASK			(0x03)
+#define SENSOR_RESOLUTION_12_BIT	(0x03)
 
 typedef enum{
 	REQUEST_CELSIUS, REQUEST_KELVIN, REQUEST_FAHRENHEIT

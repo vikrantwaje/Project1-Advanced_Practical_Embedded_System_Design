@@ -59,6 +59,10 @@ typedef enum{
 #define DATA1LOW_REG		(0x0E)
 #define DATA1HIGH_REG		(0x0F)
 
+#define IDENTIFICATION_MASK	(0x05)
+#define INTEGRATION_MASK	(0x03)
+#define GAIN_MASK		(0x01)
+
 #define	INTEGRATION_13_7	((0x00))
 #define INTEGRATION_101		((0x01))
 #define INTEGRATION_402		((0x02))
