@@ -233,6 +233,23 @@ sensor_status_t get_interrupt_ctrl_reg(uint8_t *data);
 
 // i think this function is not required
 sensor_status_t get_interrupt_ctrl_reg(uint8_t *data);
+
+
+/***********************************************************************************************  
+ * @brief Write low threshold
+ *
+ *Write to Registers THRESLOWLOW and THRESHLOWHHIGH provide the low byte and
+ * high byte, respectively, of the lower interrupt threshold 
+ *
+* @param uint16_t *data
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
+
+sensor_status_t set_low_threshold(uint16_t data);
+
+
+
 /***********************************************************************************************  
  * @brief Read low threshold
  *

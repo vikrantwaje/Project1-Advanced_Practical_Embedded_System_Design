@@ -611,6 +611,32 @@ sensor_status_t get_interrupt_ctrl_reg(uint8_t *data)
 	return READ_REG_SUCCESS;
 
 }
+/***********************************************************************************************  
+ * @brief Write low threshold
+ *
+ *Write to Registers THRESLOWLOW and THRESHLOWHIGH provide the low byte and
+ * high byte, respectively, of the lower interrupt threshold 
+ *
+* @param uint16_t *data
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
+sensor_status_t set_low_threshold(uint16_t data)
+{
+	sensor_status_t status =0;
+	pthread_mutex_lock(&i2c_mutex);
+	status = light_write_two_reg(THRESHLOWLOW_REG,data); //check data arg
+	if(status != WRITE_REG_SUCCESS){
+		perror("Writing register for Configuring low threshold register failed");
+		//free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return WRITE_REG_FAIL;
+	}
+	//free(data);
+	pthread_mutex_unlock(&i2c_mutex);
+	return WRITE_REG_SUCCESS;
+
+}
 
 /***********************************************************************************************  
  * @brief Read low threshold
