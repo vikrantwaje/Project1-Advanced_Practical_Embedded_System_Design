@@ -81,10 +81,12 @@ void *temperature_thread( void* arg){
 	double temperature_data = 0; 
 	while(1){
 
-		temperature_data = get_temperature(client_temperature_type_request);
 		//printf("\n\rTlow = %lf , Thigh =%lf",get_Tlow(client_temperature_type_request),get_Thigh(client_temperature_type_request));
 		//sleep(1);
 		if(client_request.client_get_temp_flag == 1){
+		
+			temperature_data = get_temperature(client_temperature_type_request);
+
 			//send message through queue to server task
 			//printf("\n\rTemperature data called from client: %lf",temperature_data);
 			strcpy(client_data.sensor_string,"Temperature value:");
@@ -95,6 +97,8 @@ void *temperature_thread( void* arg){
 			client_request.client_get_temp_flag =0;
 		}
 		if(logger_flag.log_temp_sensor_flag == 1){
+			temperature_data = get_temperature(client_temperature_type_request);
+
 			log_temp_data_src.timestamp = record_time(); 
 			log_temp_data_src.log_level = 1;
 			strcpy(log_temp_data_src.source_ID,"Temp value:");
@@ -111,6 +115,7 @@ void *temperature_thread( void* arg){
 		}
 
 		if(heartbeat_flag.heartbeat_temp_sensor_flag == 1){
+			temperature_data = get_temperature(client_temperature_type_request);
 			heartbeat_temp_data_src.timestamp = record_time(); 
 			heartbeat_temp_data_src.log_level = 1;
 			strcpy(heartbeat_temp_data_src.source_ID,"Temp sensor alive:");

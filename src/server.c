@@ -97,6 +97,44 @@ int server_establish()
 
 			}
 
+			else if(strcmp(str,"2") == 0)
+			{
+				printf("\n\rtemp func received ");
+				/*call temp_read()*/
+				client_temperature_type_request = REQUEST_KELVIN;
+				client_request.client_get_temp_flag = 1;
+				//	strcpy(client_data.sensor_string,"temp: ");
+				//	client_data.sensor_data = 26.0;
+				if(mq_receive(mqdes_server,(char *)&client_data,sizeof(client_data_t),NULL) ==-1){
+					perror("Reception of data from temperature thread unsuccessfull");	
+				}	
+				if((send(sock_stat,&client_data ,sizeof(client_data_t),0))<0){
+					perror("Error while sending temperature structure. Please try again!!");
+					client_request.client_get_temp_flag = 0;
+				} 
+
+
+			}
+			
+			else if(strcmp(str,"3") == 0)
+			{
+				printf("\n\rtemp func received ");
+				/*call temp_read()*/
+				client_temperature_type_request = REQUEST_FAHRENHEIT;
+				client_request.client_get_temp_flag = 1;
+				//	strcpy(client_data.sensor_string,"temp: ");
+				//	client_data.sensor_data = 26.0;
+				if(mq_receive(mqdes_server,(char *)&client_data,sizeof(client_data_t),NULL) ==-1){
+					perror("Reception of data from temperature thread unsuccessfull");	
+				}	
+				if((send(sock_stat,&client_data ,sizeof(client_data_t),0))<0){
+					perror("Error while sending temperature structure. Please try again!!");
+					client_request.client_get_temp_flag = 0;
+				} 
+
+
+			}
+
 			else if(strcmp(str,"4") == 0)
 			{
 				printf("\n\rLight val func received ");

@@ -35,6 +35,7 @@
 typedef struct{
 	char sensor_string[40];
 	double sensor_data;
+	char sensor_unit[5];
 }client_data_t;
 
 /*******************************************************************************************
