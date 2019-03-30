@@ -40,6 +40,9 @@ typedef enum{
 	INTEGRATION_TIME, GAIN, NONE
 }read_cmd_t;
 
+typedef enum{
+	DARK,LIGHT
+}last_state_t;
 // typedef enum{
 // 	INTERRUPT_ON, INTERRUPT_OFF
 // }interrupt_cmd_t;

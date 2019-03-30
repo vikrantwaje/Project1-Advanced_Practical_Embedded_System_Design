@@ -99,10 +99,10 @@ void *temperature_thread( void* arg){
 				strcpy(client_data.sensor_string,"Temperature value in celsius:");
 
 				strcpy(log_temp_data_src.source_ID,"EXT REQ(TEMP IN C)");	
-			
+
 				client_data.sensor_data = temperature_data;
 				log_temp_data_src.sensor_data = temperature_data;
-				
+
 			}
 			else if(client_temperature_type_request == REQUEST_KELVIN){	
 				temperature_data = get_temperature(client_temperature_type_request);
@@ -116,7 +116,7 @@ void *temperature_thread( void* arg){
 				temperature_data = get_temperature(client_temperature_type_request);
 				log_temp_data_src.sensor_data = temperature_data;
 				client_data.sensor_data = temperature_data;
-				
+
 				strcpy(log_temp_data_src.source_ID,"EXT REQ(TEMP IN F)");
 
 				strcpy(client_data.sensor_string,"Temperature value in Fahrenheit:");
@@ -147,9 +147,9 @@ void *temperature_thread( void* arg){
 		if(logger_flag.log_temp_sensor_flag == 1){
 
 			log_temp_data_src.timestamp = record_time(); 
-			log_temp_data_src.log_level = 1;
+			log_temp_data_src.log_level = 2;
 			if(client_temperature_type_request == REQUEST_CELSIUS){
-			strcpy(log_temp_data_src.source_ID,"TEMPERATURE(C)");
+				strcpy(log_temp_data_src.source_ID,"TEMPERATURE(C)");
 
 			}
 			else if(client_temperature_type_request == REQUEST_FAHRENHEIT){
@@ -205,8 +205,48 @@ void *temperature_thread( void* arg){
 
 void *light_sensor_thread( void* arg){
 	double lux_data = 0;
-	while(1){
+	double force_lux_data = 0;
+	last_state_t last_state = LIGHT;
+		while(1){
 
+	
+		lux_data = read_lux();
+		if(lux_data >=75 && last_state ==DARK){
+			log_light_data_src.sensor_data = lux_data;
+			strcpy(log_light_data_src.source_ID,"DARK_TO_LIGHTCHANGE");
+			log_light_data_src.timestamp = record_time();
+			log_light_data_src.log_level = 3;
+		
+		pthread_mutex_lock(&logger_queue_mutex);
+
+			if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
+				perror("Sending light value to logger unsuccessfull");
+			}
+			last_state = LIGHT;
+	pthread_mutex_unlock(&logger_queue_mutex);
+
+		}
+		else if(lux_data<75 && last_state == LIGHT){
+			//strcpy(log_light_data_src.source_ID,"DARK_TO_LIGHTCHANGE");
+
+			strcpy(log_light_data_src.source_ID,"LIGHT_TO_DARKCHANGE");
+			log_light_data_src.sensor_data = lux_data;
+			log_light_data_src.timestamp = record_time();
+			log_light_data_src.log_level = 3;
+		
+		pthread_mutex_lock(&logger_queue_mutex);
+
+			if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
+				perror("Sending light value to logger unsuccessfull");
+			}
+			last_state =DARK;
+		pthread_mutex_unlock(&logger_queue_mutex);
+
+		}
+		else{
+		//	printf("\n\rNo change");
+		}
+	
 
 		//client_get_lux_flag = 1;
 		if(client_request.client_get_lux_flag == 1){
@@ -234,7 +274,7 @@ void *light_sensor_thread( void* arg){
 			pthread_mutex_lock(&logger_queue_mutex);
 
 			log_light_data_src.timestamp = record_time();
-			log_light_data_src.log_level = 4;
+			log_light_data_src.log_level = 3;
 
 			if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
 				perror("Sending light value to logger unsuccessfull");
@@ -242,8 +282,8 @@ void *light_sensor_thread( void* arg){
 			pthread_mutex_unlock(&logger_queue_mutex);
 
 
-			
-			
+
+
 
 			client_request.client_get_lux_flag = 0;
 
