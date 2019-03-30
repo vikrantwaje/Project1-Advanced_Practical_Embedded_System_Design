@@ -69,6 +69,45 @@ sensor_status_t light_write_reg(uint8_t address, uint8_t data){
 	free(buffer);
 	return WRITE_REG_SUCCESS;
 }
+/***********************************************************************************************  
+ * @brief write two register in light sensor 
+ *
+ *Responsible for writing into two register of light sensor
+ *
+ * @param address: address of  register  of light sensor
+ * @param data: data to be written into register of light sensor
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
+
+
+sensor_status_t light_write_two_reg(uint8_t address, uint16_t data){
+	int status =0;
+	int fptr = 0;
+	int n = 0;
+	uint8_t *buffer = malloc(sizeof(uint8_t) *5);
+	*(buffer + 0) = (address | COMMAND_BIT | WORD_OPERATION_BIT);
+	*(buffer + 1) = ((uint8_t)(data) );
+	*(buffer + 2) = ((uint8_t)(data >>8));
+	fptr = open(light_i2c_path_name,O_RDWR);	
+	if(fptr == -1){
+		perror("Error in opening the file");
+		return WRITE_REG_FAIL;
+	}
+	status = ioctl(fptr,I2C_SLAVE,LIGHT_SENSOR_I2C_ADDRESS);
+	if(status !=0){
+		perror("IOCTL function failed");
+		return WRITE_REG_FAIL;
+	}
+	n = write(fptr,buffer,3);
+	if(n ==-1){
+		perror("Write not successfull");
+		return WRITE_REG_FAIL;
+	}
+	close(fptr);
+	free(buffer);
+	return WRITE_REG_SUCCESS;
+}
 
 /***********************************************************************************************  
  * @brief Read register in light sensor 
@@ -612,7 +651,33 @@ sensor_status_t get_low_threshold(uint16_t *data)
 	return WRITE_REG_SUCCESS;
 }
 
+/***********************************************************************************************  
+ * @brief Write high threshold
+ *
+ *Write to Registers THRESHIGHLOW and THRESHHIGHHIGH provide the low byte and
+ * high byte, respectively, of the lower interrupt threshold 
+ *
+* @param uint16_t *data
+ *
+ * @return status of I2C operation
+ *********************************************************************************************/
+sensor_status_t set_high_threshold(uint16_t data)
+{
+	sensor_status_t status =0;
+	pthread_mutex_lock(&i2c_mutex);
+	status = light_write_two_reg(THRESHHIGHLOW_REG,data); //check data arg
+	if(status != WRITE_REG_SUCCESS){
+		perror("Writing register for Configuring high threshold register failed");
+		//free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return WRITE_REG_FAIL;
+	}
+	//free(data);
+	pthread_mutex_unlock(&i2c_mutex);
+	return WRITE_REG_SUCCESS;
 
+
+}
 /***********************************************************************************************  
  * @brief Read high threshold
  *
