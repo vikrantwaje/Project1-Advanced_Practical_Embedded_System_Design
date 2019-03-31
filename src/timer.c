@@ -53,6 +53,8 @@ void heartbeat_timer_handler(int num){
 	heartbeat_flag.heartbeat_temp_sensor_flag = 1;
 	heartbeat_flag.heartbeat_light_sensor_flag = 1;
 	heartbeat_flag.heartbeat_logger_flag =1;
+	heartbeat_flag.heartbeat_server_flag =1;
+
 //	printf("\n\rHi heartbeat");
 }
 /***********************************************************************************************

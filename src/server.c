@@ -1,6 +1,6 @@
 /*********************************************************************************************
-*					FILENAME: server.c
-**********************************************************************************************/
+ *					FILENAME: server.c
+ **********************************************************************************************/
 
 /* Title: server.c
  * Brief: Responsible for providing various helper functions for setting up the server side
@@ -15,14 +15,14 @@
  */
 
 /*********************************************************************************************
-*					HEADER SECTION
-**********************************************************************************************/
+ *					HEADER SECTION
+ **********************************************************************************************/
 #include"server.h"
 #include"temp_sensor.h"
 
 /********************************************************************************************
-*					GLOBAL VARIABLE SECTION
-*********************************************************************************************/
+ *					GLOBAL VARIABLE SECTION
+ *********************************************************************************************/
 mqd_t mqdes_server;
 client_request_t client_request;
 request_cmd_t client_temperature_type_request;
@@ -35,8 +35,8 @@ heartbeat_data_t heartbeat_server_data_src;
 pthread_mutex_t heartbeat_queue_mutex;
 
 /******************************************************************************************
-*					FUNCTION DEFINITION
-********************************************************************************************/
+ *					FUNCTION DEFINITION
+ ********************************************************************************************/
 /*******************************************************************************************
  * @brief Communicate with external client
  *
@@ -72,8 +72,7 @@ int server_establish()
 	while(socket_flag == 1)
 	{
 
-		//send heartbeat
-			if(heartbeat_flag.heartbeat_server_flag == 1){
+		if(heartbeat_flag.heartbeat_server_flag == 1){
 			heartbeat_server_data_src.timestamp = record_time(); 
 			heartbeat_server_data_src.log_level = 1;
 			strcpy(heartbeat_server_data_src.source_ID,"SERVER_TASK ALIVE");
@@ -87,16 +86,20 @@ int server_establish()
 
 
 		}
+
+		//send heartbeat
 		memset(str,0,sizeof(str));
-		if((recv_stat = recv(sock_stat, str,sizeof(str),0) < 0))
+		if ((recv(sock_stat, str,sizeof(str),0) <0))
 		{
 			perror("read error");
 			socket_flag = 0;
 			break;
 		}
+
+
+
+
 		else{
-
-
 			//RxBuf[0] = str;
 
 			if(strcmp(str,"1") == 0)
@@ -136,7 +139,7 @@ int server_establish()
 
 
 			}
-			
+
 			else if(strcmp(str,"3") == 0)
 			{
 				printf("\n\rtemp func received ");
