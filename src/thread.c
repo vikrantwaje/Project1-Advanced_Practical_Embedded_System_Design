@@ -409,7 +409,7 @@ void *logger_thread( void* arg){
 	log_t log_temp_data;
 	FILE *log_file = NULL;
 	while(1){
-		printf("\n\rClosed log files");
+	//	printf("\n\rClosed log files");
 
 
 		if(system_shutdown_flag ==1){

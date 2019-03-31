@@ -41,7 +41,7 @@ int socket_fd;
 int main()
 {
 	int ret_status;
-	int ret_interrupt_val;
+	char ret_interrupt_val;
 	heartbeat_data_t heartbeat_temp_data;
 	sensor_status_t stat;
 	/*stat=light_sensor_power_on();
@@ -50,6 +50,11 @@ int main()
 	  }*/
 
 	signal_handler_init();
+	 ret_status=GPIO_init();
+	if(ret_status ==1){
+	printf("Error in log file");
+	}
+
 	open_message_queue_server(&mqdes_server, &attribute_server);
 	open_message_queue_logger(&mqdes_logger,&attribute_logger);
 	open_message_queue_heartbeat(&mqdes_heartbeat,&attribute_heartbeat);
@@ -86,11 +91,11 @@ int main()
 
 		ret_interrupt_val = IRQ_handler();
 
-		if( ret_interrupt_val == 1 )
+		if( ret_interrupt_val == '1' )
 		{
 			printf("\nInterrupt Received");
 		}
-		else if ( ret_interrupt_val == 0 )
+		else if ( ret_interrupt_val == '0' )
 		{
 			printf("\n No Interrupt");
 		}

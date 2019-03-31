@@ -30,8 +30,8 @@
 /**************************************************************************************
 *					     MACROS
 ****************************************************************************************/
-#define TLOW_VAL 	(25.0)		// For temperature Alert
-#define THIGH_VAL	(30.0)	
+#define TLOW_VAL 	(26.0)		// For temperature Alert
+#define THIGH_VAL	(27.0)	
 #define THRESHOLD_HIGH	(100)	// For light Interrupt Threshold Register
 #define THRESHOLD_LOW	(60)					
 
