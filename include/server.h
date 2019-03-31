@@ -37,6 +37,10 @@
 #include"temp_sensor.h"
 #include"ipc.h"
 #include"led.h"
+#include"heartbeat.h"
+#include"logger.h"
+#include"timer.h"
+#include<pthread.h>
 /***************************************************************************************
 *					MACROS AND ENUMS
 ****************************************************************************************/

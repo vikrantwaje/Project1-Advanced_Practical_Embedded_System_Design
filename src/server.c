@@ -29,6 +29,11 @@ request_cmd_t client_temperature_type_request;
 client_data_t client_data;
 
 
+mqd_t mqdes_heartbeat;
+heartbeat_flag_t heartbeat_flag;
+heartbeat_data_t heartbeat_server_data_src;
+pthread_mutex_t heartbeat_queue_mutex;
+
 /******************************************************************************************
 *					FUNCTION DEFINITION
 ********************************************************************************************/
@@ -66,6 +71,22 @@ int server_establish()
 
 	while(socket_flag == 1)
 	{
+
+		//send heartbeat
+			if(heartbeat_flag.heartbeat_server_flag == 1){
+			heartbeat_server_data_src.timestamp = record_time(); 
+			heartbeat_server_data_src.log_level = 1;
+			strcpy(heartbeat_server_data_src.source_ID,"SERVER_TASK ALIVE");
+			pthread_mutex_lock(&heartbeat_queue_mutex);
+			if(mq_send(mqdes_heartbeat,(char *)&heartbeat_server_data_src,sizeof(heartbeat_data_t),0)==-1){
+				perror("Sending server heartbeat to main unsuccessfull");
+			}
+			pthread_mutex_unlock(&heartbeat_queue_mutex);
+
+			heartbeat_flag.heartbeat_server_flag =0;
+
+
+		}
 		memset(str,0,sizeof(str));
 		if((recv_stat = recv(sock_stat, str,sizeof(str),0) < 0))
 		{
