@@ -87,10 +87,15 @@ int server_establish()
 
 		}
 
+
 		//send heartbeat
 		memset(str,0,sizeof(str));
-		if ((recv(sock_stat, str,sizeof(str),0) <0))
+		if (recv_stat =(recv(sock_stat, str,sizeof(str),0)<0))
 		{
+		
+	//	printf("\n\rstat %d",recv_stat);
+
+			
 			perror("read error");
 			socket_flag = 0;
 			break;
