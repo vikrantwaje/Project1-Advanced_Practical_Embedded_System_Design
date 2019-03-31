@@ -34,6 +34,7 @@ heartbeat_flag_t heartbeat_flag;
 heartbeat_data_t heartbeat_server_data_src;
 pthread_mutex_t heartbeat_queue_mutex;
 
+int sock_stat;
 /******************************************************************************************
  *					FUNCTION DEFINITION
  ********************************************************************************************/

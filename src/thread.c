@@ -46,6 +46,11 @@ heartbeat_data_t heartbeat_temp_data_src;
 heartbeat_data_t heartbeat_light_data_src;
 heartbeat_data_t heartbeat_logger_data_src;
 pthread_mutex_t heartbeat_queue_mutex;
+
+bool system_shutdown_flag;
+bool temperature_shutdown_flag ;
+bool light_shutdown_flag;
+bool system_shutdown_main_flag;
 /**************************************************************************************
  *					FUNCTION DEFINITION
  ***************************************************************************************/
@@ -82,7 +87,13 @@ void *temperature_thread( void* arg){
 	double temperature_data = 0;
 	temperature_data = get_temperature(client_temperature_type_request); 
 	while(1){
-
+		if(system_shutdown_flag ==1){
+			printf("\n\rClosing temperature thread");
+			pthread_mutex_unlock(&logger_queue_mutex);
+			pthread_mutex_unlock(&heartbeat_queue_mutex);
+			pthread_exit(NULL);
+		}
+		else{
 		//printf("\n\rTlow = %lf , Thigh =%lf",get_Tlow(client_temperature_type_request),get_Thigh(client_temperature_type_request));
 		//sleep(1);
 		if(client_request.client_get_temp_flag == 1){
@@ -204,6 +215,7 @@ void *temperature_thread( void* arg){
 
 	}
 }
+}
 
 
 
@@ -223,7 +235,13 @@ void *light_sensor_thread( void* arg){
 	double force_lux_data = 0;
 	last_state_t last_state = INITIAL;
 	while(1){
-
+		if(system_shutdown_flag ==1){
+			printf("\n\rClosing light sensor thread");
+			pthread_mutex_unlock(&logger_queue_mutex);
+			pthread_mutex_unlock(&heartbeat_queue_mutex);
+			pthread_exit(NULL);
+		}
+		else{
 		if(lux_data !=READ_LIGHT_ERROR){
 
 			lux_data = read_lux();
@@ -369,6 +387,7 @@ void *light_sensor_thread( void* arg){
 
 
 	}
+}
 
 }
 
@@ -390,42 +409,58 @@ void *logger_thread( void* arg){
 	log_t log_temp_data;
 	FILE *log_file = NULL;
 	while(1){
+		printf("\n\rClosed log files");
 
-		if(heartbeat_flag.heartbeat_logger_flag == 1){
-			heartbeat_logger_data_src.timestamp = record_time(); 
-			heartbeat_logger_data_src.log_level = 2;
-			strcpy(heartbeat_logger_data_src.source_ID,"LOGGER_TASK ALIVE");	
-			pthread_mutex_lock(&heartbeat_queue_mutex);
-			if(mq_send(mqdes_heartbeat,(char *)&heartbeat_logger_data_src,sizeof(heartbeat_data_t),0)==-1){
-				perror("Sending logger value to main unsuccessfull");
-			}
+
+		if(system_shutdown_flag ==1){
+
+			printf("\n\rClosed log files");
+
+			fclose(log_file);
+
+			pthread_mutex_unlock(&logger_queue_mutex);
 			pthread_mutex_unlock(&heartbeat_queue_mutex);
+			pthread_exit(NULL);
+		}
 
-			heartbeat_flag.heartbeat_logger_flag =0;
+		else{
+			if(heartbeat_flag.heartbeat_logger_flag == 1){
+				heartbeat_logger_data_src.timestamp = record_time(); 
+				heartbeat_logger_data_src.log_level = 2;
+				strcpy(heartbeat_logger_data_src.source_ID,"LOGGER_TASK ALIVE");	
+				pthread_mutex_lock(&heartbeat_queue_mutex);
+				if(mq_send(mqdes_heartbeat,(char *)&heartbeat_logger_data_src,sizeof(heartbeat_data_t),0)==-1){
+					perror("Sending logger value to main unsuccessfull");
+				}
+				pthread_mutex_unlock(&heartbeat_queue_mutex);
+
+				heartbeat_flag.heartbeat_logger_flag =0;
+
+
+			}
+
+			if(mq_receive(mqdes_logger,(char *)&log_temp_data,sizeof(log_t),NULL) ==-1){
+				perror("Reception of data from temp sensor thread unsuccessfull");	
+			}
+
+
+
+			log_file = fopen("log.txt","a+");
+			if(strcmp(log_temp_data.source_ID,"BIST SUCCESS")==0){
+				LOG_GENERAL(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID);
+
+			}
+			else if(strcmp(log_temp_data.source_ID,"TEMPSENSOR_REMOVED")==0 ||strcmp(log_temp_data.source_ID,"LIGHTSENSOR_REMOVED")==0){
+				LOG_GENERAL(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID);
+
+			}
+			else if(strcmp(log_temp_data.source_ID,"BIST SUCCESS")!=0){
+				LOG(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
+			}
+			fclose(log_file);
 
 
 		}
-
-		//	pthread_mutex_lock(&logger_queue_mutex);
-		if(mq_receive(mqdes_logger,(char *)&log_temp_data,sizeof(log_t),NULL) ==-1){
-			perror("Reception of data from temp sensor thread unsuccessfull");	
-		}
-		log_file = fopen("log.txt","a+");
-		//	printf("\n\r[%lf] [%d] [%s] [%lf]",log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
-		//	pthread_mutex_unlock(&logger_queue_mutex);
-		if(strcmp(log_temp_data.source_ID,"BIST SUCCESS")==0){
-			LOG_GENERAL(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID);
-
-		}
-		else if(strcmp(log_temp_data.source_ID,"TEMPSENSOR_REMOVED")==0 ||strcmp(log_temp_data.source_ID,"LIGHTSENSOR_REMOVED")==0){
-			LOG_GENERAL(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID);
-
-		}
-		else if(strcmp(log_temp_data.source_ID,"BIST SUCCESS")!=0){
-			LOG(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
-		}
-		fclose(log_file);
-
 
 	}
 

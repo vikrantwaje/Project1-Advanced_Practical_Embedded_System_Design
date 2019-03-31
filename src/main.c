@@ -26,6 +26,9 @@ struct mq_attr attribute_logger;
 mqd_t mqdes_heartbeat;
 struct mq_attr attribute_heartbeat;
 pthread_t thread1, thread2, thread3, thread4;
+bool system_shutdown_main_flag;
+int socket_fd;
+
 /*******************************************************************************************
  * @brief Main function
  *
@@ -44,8 +47,8 @@ int main()
 	  if(stat !=WRITE_REG_SUCCESS){
 	  perror("Power ON of light sensor failed");
 	  }*/
-	
 
+	signal_handler_init();
 	open_message_queue_server(&mqdes_server, &attribute_server);
 	open_message_queue_logger(&mqdes_logger,&attribute_logger);
 	open_message_queue_heartbeat(&mqdes_heartbeat,&attribute_heartbeat);
@@ -58,14 +61,28 @@ int main()
 
 	while(1){
 
-		if(mq_receive(mqdes_heartbeat,(char *)&heartbeat_temp_data,sizeof(heartbeat_data_t),NULL) ==-1){
-			perror("Reception of data from temp sensor thread unsuccessfull");	
+
+		if(system_shutdown_main_flag == 1){
+		
+				close_message_queue_server(&mqdes_server);
+			close_message_queue_logger(&mqdes_logger);
+			close_message_queue_heartbeat(&mqdes_heartbeat);
+			close(socket_fd);
+			pthread_cancel(thread1);
+			pthread_cancel(thread4);
+			printf("\n\rCLosing message queues");
+			break;
 		}
 
-		printf("\n\r%s,[%lf]",heartbeat_temp_data.source_ID,heartbeat_temp_data.sensor_data);
 
-
-	}
+		 if(mq_receive(mqdes_heartbeat,(char *)&heartbeat_temp_data,sizeof(heartbeat_data_t),NULL) ==-1){
+			perror("Reception of data from temp sensor thread unsuccessfull");	
+		
+		}
+		else{
+			printf("\n\r%s,[%lf]",heartbeat_temp_data.source_ID,heartbeat_temp_data.sensor_data);
+		}
+	}	
 
 	/*Socket thread join*/
 	ret_status = pthread_join( thread1, NULL);
@@ -91,10 +108,11 @@ int main()
 	}
 	printf("Main Thread Exited Successfully \n");
 
-	close_message_queue_server(&mqdes_server);
+	/*close_message_queue_server(&mqdes_server);
 	close_message_queue_logger(&mqdes_logger);
 	close_message_queue_heartbeat(&mqdes_heartbeat);
-	return 0;
+*/
+return 0;
 }
 
 

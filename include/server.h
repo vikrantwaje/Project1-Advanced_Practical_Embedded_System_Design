@@ -59,10 +59,10 @@ typedef enum{
 * 					GLOBAL VARIABLES
 *****************************************************************************************/
 char *RxBuf[10] ;
-int socket_fd;
+extern int socket_fd;
 int check_stat;
 int sig_flag ;
-int sock_stat;
+extern int sock_stat;
 struct sockaddr_in server_addr;
 
 typedef struct{
