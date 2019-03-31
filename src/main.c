@@ -70,7 +70,7 @@ int main()
 			close(socket_fd);
 			pthread_cancel(thread1);
 			pthread_cancel(thread4);
-			printf("\n\rCLosing message queues");
+			printf("\n\rCLosing server and logger task");
 			break;
 		}
 
