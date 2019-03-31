@@ -8,7 +8,6 @@
  * Course: Advanced Embedded Software Development
  * Project: 1
  * 
- * 
  * */
 /****************************************************************************************
  *					HEADER FILE SECTION
