@@ -82,7 +82,7 @@ void built_in_self_test(){
 			flag_temp =1;
 		}
 
-		ret_status = configure_temp_fault(FAULT_2);
+		ret_status = configure_temp_fault(FAULT_1);
 		if(ret_status!= WRITE_REG_SUCCESS){
 			printf("\n\rTemperature sensor initialisation failed. Failed to write fault bits. ");
 			flag_temp =1;
@@ -90,7 +90,7 @@ void built_in_self_test(){
 
 
 		ret_status = read_temp_fault(data);
-		if(((*(data) & FAULT_MASK) !=FAULT_2) && ret_status!=READ_REG_SUCCESS){
+		if(((*(data) & FAULT_MASK) !=FAULT_1) && ret_status!=READ_REG_SUCCESS){
 			printf("\n\rTemperature sensor initialisation failed. Incorrect fault bit values data = %x",*data);
 			flag_temp = 1;
 		}
