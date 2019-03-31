@@ -36,6 +36,8 @@ typedef struct{
 typedef struct{
 	bool heartbeat_temp_sensor_flag;
 	bool heartbeat_light_sensor_flag;
+	bool heartbeat_logger_flag;
+	bool heartbeat_server_flag;
 }heartbeat_flag_t;
 
 /**************************************************************************************

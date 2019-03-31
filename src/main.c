@@ -62,7 +62,7 @@ int main()
 			perror("Reception of data from temp sensor thread unsuccessfull");	
 		}
 
-		printf("\n\r[%lf] [%d] [%s] [%lf]",heartbeat_temp_data.timestamp,heartbeat_temp_data.log_level,heartbeat_temp_data.source_ID,heartbeat_temp_data.sensor_data);
+		printf("\n\r%s,[%lf]",heartbeat_temp_data.source_ID,heartbeat_temp_data.sensor_data);
 
 
 	}

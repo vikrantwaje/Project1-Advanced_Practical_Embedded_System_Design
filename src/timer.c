@@ -38,7 +38,7 @@ void log_timer_handler(int num){
 	//log_timer_flag = 1;
 	logger_flag.log_temp_sensor_flag =1;
 	logger_flag.log_light_sensor_flag =1;
-	printf("\n\rlogger");
+//	printf("\n\rlogger");
 }
 /***********************************************************************************************
  * @brief heartbeat timer handler
@@ -52,7 +52,8 @@ void heartbeat_timer_handler(int num){
 
 	heartbeat_flag.heartbeat_temp_sensor_flag = 1;
 	heartbeat_flag.heartbeat_light_sensor_flag = 1;
-	printf("\n\rHi heartbeat");
+	heartbeat_flag.heartbeat_logger_flag =1;
+//	printf("\n\rHi heartbeat");
 }
 /***********************************************************************************************
  * @brief Create log timer
