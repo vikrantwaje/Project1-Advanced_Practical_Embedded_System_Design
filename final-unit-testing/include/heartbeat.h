@@ -1,33 +1,42 @@
 /********************************************************************************************
-*					FILENAME: main.h
+*					FILENAME: heartbeat.h
 **********************************************************************************************/
-/* Title: main.h
- * Brief: Responsible for creating threads, joining them and initiating built in self test
+/* Title: heartbeat.h
+ * Brief: Responsible for providing various helper function to support heartbeat functionality
  * Author: Tanmay Chaturvedi, Vikrant Waje
  * Date Created: March 16, 2019
  * Course: Advanced Embedded Software Development
  * Project: 1
- * 
+
+ * Reference[1]: http://www.
  * 
  * */
 /****************************************************************************************
 *					HEADER FILE SECTION
 *****************************************************************************************/
-#ifndef SRC_MAIN_H_
-#define SRC_MAIN_H_
+#ifndef HEARTBEAT_H_
+#define HEARTBEAT_H_
 
-//#include "thread.h"
-//#include"timer.h"
-#include"temp_sensor.h"
-#include"light_sensor.h"
-//#include"logger.h"
-//#include"synchronization.h"
-//#include"server.h"
-//#include"ipc.h"
-//#include"led.h"
+#include<stdio.h>
+#include<stdint.h>
+#include<stdbool.h>
 /**************************************************************************************
 *					     MACROS
 ****************************************************************************************/
+
+
+typedef struct{
+	double timestamp;
+	int log_level;
+	uint8_t  source_ID[20];
+	double sensor_data;
+	bool error_flag;
+}heartbeat_data_t;
+
+typedef struct{
+	bool heartbeat_temp_sensor_flag;
+	bool heartbeat_light_sensor_flag;
+}heartbeat_flag_t;
 
 /**************************************************************************************
 *					GLOBAL VARIABLES
@@ -37,6 +46,5 @@
 *					FUNCTION PROTOTYPE
 ***************************************************************************************/
 
+#endif /* HEARTBEAT_H_ */
 
-
-#endif /* SRC_MAIN_H_ */

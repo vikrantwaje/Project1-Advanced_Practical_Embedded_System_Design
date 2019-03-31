@@ -1,41 +1,41 @@
 /********************************************************************************************
-*					FILENAME: unittest.h
+*					FILENAME: bist.h
 **********************************************************************************************/
-/* Title:thread.h
- * Brief: Responsible for performing unit testing using CUnit unit testing framework
+/* Title: bist.h
+ * Brief: Responsible for providing helper function for built in self test
  * Author: Tanmay Chaturvedi, Vikrant Waje
- * Date Created: March 26, 2019
+ * Date Created: March 16, 2019
  * Course: Advanced Embedded Software Development
  * Project: 1
+
+ * Reference[1]: http://www.
  * 
  * 
  * */
 /****************************************************************************************
 *					HEADER FILE SECTION
 *****************************************************************************************/
-#ifndef SRC_UNITTEST_H_
-#define SRC_UNITTEST_H_
+#ifndef BIST_H_
+#define BIST_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <CUnit/Basic.h>
-#include <CUnit/Automated.h>
-#include <CUnit/CUnit.h>
-#include "main.h"
-
+#include "temp_sensor.h"
+#include "light_sensor.h"
+#include "logger.h"
+#include "ipc.h"
+#include"i2c_status.h"
+#include"thread.h"
+#include<pthread.h>
+/**************************************************************************************
+*					     MACROS
+****************************************************************************************/
+#define TLOW_VAL 	(50.0)
+#define THIGH_VAL	(100.0)
+#define THRESHOLD_HIGH	(100)
+#define THRESHOLD_LOW	(60)					
 
 /**************************************************************************************
 *					FUNCTION PROTOTYPE
 ***************************************************************************************/
-int cunit_add_testsuite();
-int cunit_temp_test(void);
-int cunit_light_test(void);
-int cunit_logger_test(void);
+void built_in_self_test();
 
-void temp_write_test(void);
-void temp_read_test(void);
-void light_write_test(void);
-void light_read_test(void);
-
-
-#endif
+#endif 
