@@ -146,9 +146,20 @@ void *temperature_thread( void* arg){
 
 		}
 		if(logger_flag.log_temp_sensor_flag == 1){
+			temperature_data = get_temperature(client_temperature_type_request); 
+			if(temperature_data == READ_TEMPERATURE_ERROR){	
+				strcpy(log_temp_data_src.source_ID,"TEMPSENSOR_REMOVED");
+				log_temp_data_src.timestamp = record_time(); 
+				log_temp_data_src.log_level = 4;
+				pthread_mutex_lock(&logger_queue_mutex);
+				if(mq_send(mqdes_logger,(char *)&log_temp_data_src,sizeof(log_t),0)==-1){
+					perror("Temperature sensor removed");
+				}
+				pthread_mutex_unlock(&logger_queue_mutex);
 
-			log_temp_data_src.timestamp = record_time(); 
-			log_temp_data_src.log_level = 2;
+
+
+			}
 			if(client_temperature_type_request == REQUEST_CELSIUS){
 				strcpy(log_temp_data_src.source_ID,"TEMPERATURE(C)");
 
@@ -160,6 +171,9 @@ void *temperature_thread( void* arg){
 				strcpy(log_temp_data_src.source_ID,"TEMPERATURE(K)");
 			}
 			log_temp_data_src.sensor_data = temperature_data;	
+
+			log_temp_data_src.timestamp = record_time(); 
+			log_temp_data_src.log_level = 2;	
 			pthread_mutex_lock(&logger_queue_mutex);
 			if(mq_send(mqdes_logger,(char *)&log_temp_data_src,sizeof(log_t),0)==-1){
 				perror("Sending temperature value to logger unsuccessfull");
@@ -210,51 +224,53 @@ void *light_sensor_thread( void* arg){
 	last_state_t last_state = INITIAL;
 	while(1){
 
+		if(lux_data !=READ_LIGHT_ERROR){
 
-		lux_data = read_lux();
-		if(lux_data >=75 && last_state ==DARK){
-			log_light_data_src.sensor_data = lux_data;
-			strcpy(log_light_data_src.source_ID,"DARK_TO_LIGHTCHANGE");
-			log_light_data_src.timestamp = record_time();
-			log_light_data_src.log_level = 3;
+			lux_data = read_lux();
 
-			pthread_mutex_lock(&logger_queue_mutex);
+			if(lux_data >=75 && last_state ==DARK){
+				log_light_data_src.sensor_data = lux_data;
+				strcpy(log_light_data_src.source_ID,"DARK_TO_LIGHTCHANGE");
+				log_light_data_src.timestamp = record_time();
+				log_light_data_src.log_level = 3;
 
-			if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
-				perror("Sending light value to logger unsuccessfull");
-			}
-			last_state = LIGHT;
-			pthread_mutex_unlock(&logger_queue_mutex);
+				pthread_mutex_lock(&logger_queue_mutex);
 
-		}
-		else if(lux_data<75 && last_state == LIGHT){
-			//strcpy(log_light_data_src.source_ID,"DARK_TO_LIGHTCHANGE");
-
-			strcpy(log_light_data_src.source_ID,"LIGHT_TO_DARKCHANGE");
-			log_light_data_src.sensor_data = lux_data;
-			log_light_data_src.timestamp = record_time();
-			log_light_data_src.log_level = 3;
-
-			pthread_mutex_lock(&logger_queue_mutex);
-
-			if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
-				perror("Sending light value to logger unsuccessfull");
-			}
-			last_state =DARK;
-			pthread_mutex_unlock(&logger_queue_mutex);
-
-		}
-		else{
-			if(lux_data>=75){
+				if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
+					perror("Sending light value to logger unsuccessfull");
+				}
 				last_state = LIGHT;
+				pthread_mutex_unlock(&logger_queue_mutex);
+
 			}
-			else if(lux_data<75){
-				last_state = DARK;
+			else if(lux_data<75 && last_state == LIGHT){
+				//strcpy(log_light_data_src.source_ID,"DARK_TO_LIGHTCHANGE");
+
+				strcpy(log_light_data_src.source_ID,"LIGHT_TO_DARKCHANGE");
+				log_light_data_src.sensor_data = lux_data;
+				log_light_data_src.timestamp = record_time();
+				log_light_data_src.log_level = 3;
+
+				pthread_mutex_lock(&logger_queue_mutex);
+
+				if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
+					perror("Sending light value to logger unsuccessfull");
+				}
+				last_state =DARK;
+				pthread_mutex_unlock(&logger_queue_mutex);
+
 			}
-			//	printf("\n\rNo change");
+			else{
+				if(lux_data>=75){
+					last_state = LIGHT;
+				}
+				else if(lux_data<75){
+					last_state = DARK;
+				}
+				//	printf("\n\rNo change");
+			}
+
 		}
-
-
 		//client_get_lux_flag = 1;
 		if(client_request.client_get_lux_flag == 1){
 			//send message through queue to server task
@@ -297,8 +313,22 @@ void *light_sensor_thread( void* arg){
 		}
 		if(logger_flag.log_light_sensor_flag == 1){
 			lux_data = read_lux(); 
-			log_light_data_src.timestamp = record_time(); 
-			log_light_data_src.log_level = 2;
+
+
+			if(lux_data == READ_LIGHT_ERROR){
+				log_light_data_src.timestamp = record_time();
+				log_light_data_src.log_level = 4;
+				strcpy(log_light_data_src.source_ID,"LIGHTSENSOR_REMOVED");
+				pthread_mutex_lock(&logger_queue_mutex);
+				if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
+					perror("Light sensor removed");
+				}
+				logger_flag.log_light_sensor_flag =0;
+				pthread_mutex_unlock(&logger_queue_mutex);
+
+
+			}
+
 			if( lux_data <75){
 				strcpy(log_light_data_src.source_ID,"LIGHT(DARK STATE)");
 			}
@@ -306,6 +336,9 @@ void *light_sensor_thread( void* arg){
 				strcpy(log_light_data_src.source_ID,"LIGHT(LIGHT STATE)");
 
 			}
+			log_light_data_src.timestamp = record_time(); 
+			log_light_data_src.log_level = 2;
+
 			log_light_data_src.sensor_data = lux_data;	
 			pthread_mutex_lock(&logger_queue_mutex);
 			if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
@@ -358,7 +391,7 @@ void *logger_thread( void* arg){
 	FILE *log_file = NULL;
 	while(1){
 
-			if(heartbeat_flag.heartbeat_logger_flag == 1){
+		if(heartbeat_flag.heartbeat_logger_flag == 1){
 			heartbeat_logger_data_src.timestamp = record_time(); 
 			heartbeat_logger_data_src.log_level = 2;
 			strcpy(heartbeat_logger_data_src.source_ID,"LOGGER_TASK ALIVE");	
@@ -372,24 +405,28 @@ void *logger_thread( void* arg){
 
 
 		}
-		
-			//	pthread_mutex_lock(&logger_queue_mutex);
-			if(mq_receive(mqdes_logger,(char *)&log_temp_data,sizeof(log_t),NULL) ==-1){
-				perror("Reception of data from temp sensor thread unsuccessfull");	
-			}
-			log_file = fopen("log.txt","a+");
-			//	printf("\n\r[%lf] [%d] [%s] [%lf]",log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
-			//	pthread_mutex_unlock(&logger_queue_mutex);
-			if(strcmp(log_temp_data.source_ID,"BIST SUCCESS")==0){
-				LOG_GENERAL(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID);
 
-			}
-			else{
-				LOG(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
-			}
-			fclose(log_file);
+		//	pthread_mutex_lock(&logger_queue_mutex);
+		if(mq_receive(mqdes_logger,(char *)&log_temp_data,sizeof(log_t),NULL) ==-1){
+			perror("Reception of data from temp sensor thread unsuccessfull");	
+		}
+		log_file = fopen("log.txt","a+");
+		//	printf("\n\r[%lf] [%d] [%s] [%lf]",log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
+		//	pthread_mutex_unlock(&logger_queue_mutex);
+		if(strcmp(log_temp_data.source_ID,"BIST SUCCESS")==0){
+			LOG_GENERAL(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID);
 
-		
+		}
+		else if(strcmp(log_temp_data.source_ID,"TEMPSENSOR_REMOVED")==0 ||strcmp(log_temp_data.source_ID,"LIGHTSENSOR_REMOVED")==0){
+			LOG_GENERAL(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID);
+
+		}
+		else if(strcmp(log_temp_data.source_ID,"BIST SUCCESS")!=0){
+			LOG(log_file,log_temp_data.timestamp,log_temp_data.log_level,log_temp_data.source_ID,log_temp_data.sensor_data);
+		}
+		fclose(log_file);
+
+
 	}
 
 }

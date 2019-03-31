@@ -211,6 +211,7 @@ double get_temperature(request_cmd_t request){
 		perror("Reading configuration register failed");
 		free( data );
 		pthread_mutex_unlock(&i2c_mutex);
+		return READ_TEMPERATURE_ERROR;
 	}
 	//printf("%x %x",*(data + 0),*(data +1));
 

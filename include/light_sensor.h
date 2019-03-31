@@ -78,7 +78,7 @@ typedef enum{
 
 #define COMMAND_BIT		(0x80)
 #define WORD_OPERATION_BIT	(0x20)
-
+#define READ_LIGHT_ERROR	(double)(-55.000000)
 /***************************************************************************************
 *				GLOBAL VARIABLE SECTION
 ****************************************************************************************/

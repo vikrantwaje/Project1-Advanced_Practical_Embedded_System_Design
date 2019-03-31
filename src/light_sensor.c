@@ -224,30 +224,44 @@ double read_lux(){
 	status = read_two_reg(DATA1LOW_REG,data);
 	if(status != READ_REG_SUCCESS){
 		perror("Reading Channel 1 data register failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_LIGHT_ERROR;
 	}
 	unsigned int ch1Int = (*(data +1)<<8) | *(data +0);
 	status = read_two_reg(DATA0LOW_REG,data);
 	if(status !=READ_REG_SUCCESS){
 		perror("Reading Channel 0 data register failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_LIGHT_ERROR;
 	}
 	unsigned int ch0Int =  (*(data +1)<<8) | *(data +0);
 
 	status = read_two_reg(DATA0LOW_REG,data);
 	if(status !=READ_REG_SUCCESS){
 		perror("Reading channel 0 data register failed(floating values)");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_LIGHT_ERROR;
 	}
 	float ch0 = (float)( (*(data +1)<<8) | *(data +0));
 
 	status = read_two_reg(DATA1LOW_REG,data);
 	if(status != READ_REG_SUCCESS){
 		perror("Reading channel 1 data register failed(floating value)");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_LIGHT_ERROR;
 	}
 	float ch1 = (float)( (*(data +1)<<8) | *(data +0));
 
 	status = light_read_reg(TIMING_REG,data,INTEGRATION_TIME);
 	if(status!= READ_REG_SUCCESS){
 		perror("Reading integration time failed");
-
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_LIGHT_ERROR;
 	}
 	switch (*data)
 	{
@@ -275,6 +289,9 @@ double read_lux(){
 	status = light_read_reg(TIMING_REG,data,INTEGRATION_TIME);
 	if(status!=READ_REG_SUCCESS){
 		perror("Reading integration time failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_LIGHT_ERROR;
 	}
 	switch (*data)
 	{
@@ -293,6 +310,13 @@ double read_lux(){
 
 	}
 	status = light_read_reg(TIMING_REG,data,GAIN);
+	if(status!=READ_REG_SUCCESS){
+		perror("Reading integration time failed");
+		free(data);
+		pthread_mutex_unlock(&i2c_mutex);
+		return READ_LIGHT_ERROR;
+	}
+
 	if (*data ==( (LOW_GAIN)>>4U)) 
 	{
 		ch0 *= 16;

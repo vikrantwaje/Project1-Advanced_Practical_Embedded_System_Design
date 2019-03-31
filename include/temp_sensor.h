@@ -61,6 +61,9 @@
 #define RESOLUTION_MASK			(0x03)
 #define SENSOR_RESOLUTION_12_BIT	(0x03)
 
+
+#define READ_TEMPERATURE_ERROR	(double)(-56.000000)
+
 typedef enum{
 	REQUEST_CELSIUS, REQUEST_KELVIN, REQUEST_FAHRENHEIT
 }request_cmd_t;
