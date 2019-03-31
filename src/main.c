@@ -41,6 +41,7 @@ int socket_fd;
 int main()
 {
 	int ret_status;
+	int ret_interrupt_val;
 	heartbeat_data_t heartbeat_temp_data;
 	sensor_status_t stat;
 	/*stat=light_sensor_power_on();
@@ -81,6 +82,17 @@ int main()
 		}
 		else{
 			printf("\n\r%s,[%lf]",heartbeat_temp_data.source_ID,heartbeat_temp_data.sensor_data);
+		}
+
+		ret_interrupt_val = IRQ_handler();
+
+		if( ret_interrupt_val == 1 )
+		{
+			printf("\nInterrupt Received");
+		}
+		else if ( ret_interrupt_val == 0 )
+		{
+			printf("\n No Interrupt");
 		}
 	}	
 
