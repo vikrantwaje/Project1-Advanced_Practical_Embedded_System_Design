@@ -95,7 +95,7 @@ bool create_heartbeat_timer(){
 	timer_create(CLOCK_REALTIME,&signal_specification,&heartbeat_timer_id);
 	timer_setting.it_value.tv_sec =1;
 	timer_setting.it_value.tv_nsec = 0;
-	timer_setting.it_interval.tv_sec = 3;
+	timer_setting.it_interval.tv_sec =3 ;
 	timer_setting.it_interval.tv_nsec = 0;
 	timer_settime(heartbeat_timer_id,0,&timer_setting,NULL);
 	return 0;

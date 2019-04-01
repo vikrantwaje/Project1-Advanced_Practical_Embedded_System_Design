@@ -27,7 +27,8 @@ struct mq_attr attribute_heartbeat;
 pthread_t thread1, thread2, thread3, thread4;
 bool system_shutdown_main_flag;
 int socket_fd;
-
+pthread_mutex_t logger_queue_mutex;
+log_t log_main_data_src;
 /*******************************************************************************************
  * @brief Main function
  *
@@ -40,6 +41,7 @@ int socket_fd;
 int main()
 {
 	int ret_status;
+	char last_state = '0';
 	char ret_interrupt_val;
 	heartbeat_data_t heartbeat_temp_data;
 	sensor_status_t stat;
@@ -86,17 +88,39 @@ int main()
 		}
 		else{
 			printf("\n\r%s,[%lf]",heartbeat_temp_data.source_ID,heartbeat_temp_data.sensor_data);
+				pthread_mutex_lock(&logger_queue_mutex);
+				strcpy(log_main_data_src.source_ID,heartbeat_temp_data.source_ID);
+				log_main_data_src.timestamp = record_time();
+				log_main_data_src.log_level = 1;
+
+				if(mq_send(mqdes_logger,(char *)&log_main_data_src,sizeof(log_t),0)==-1){
+					perror("Sending Heartbeat to logger unsuccessfull");
+				}
+				pthread_mutex_unlock(&logger_queue_mutex);
+
 		}
 
 		ret_interrupt_val = IRQ_handler();
 
-		if( ret_interrupt_val == '1' )
+		if( ret_interrupt_val == '1' && last_state!=ret_interrupt_val )
 		{
-			printf("\nInterrupt Received");
+			printf("\n\rInterrupt Received");
+				pthread_mutex_lock(&logger_queue_mutex);
+				strcpy(log_main_data_src.source_ID,"TMP_SWING_INTERRUPT");
+				log_main_data_src.timestamp = record_time();
+				log_main_data_src.log_level = 3;
+
+				if(mq_send(mqdes_logger,(char *)&log_main_data_src,sizeof(log_t),0)==-1){
+					perror("Sending temperature swing to logger unsuccessfull");
+				}
+				pthread_mutex_unlock(&logger_queue_mutex);
+				last_state = ret_interrupt_val;
+
 		}
 		else if ( ret_interrupt_val == '0' )
 		{
-			printf("\n No Interrupt");
+			printf("\n\r No Interrupt");
+			last_state = ret_interrupt_val;
 		}
 	}	
 
