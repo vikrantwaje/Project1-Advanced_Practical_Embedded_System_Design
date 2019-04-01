@@ -76,7 +76,7 @@ int main()
 			printf("\n\rClosing socket");
 			break;
 		}
-		if(strcmp(input_cmd,"5")!=0 && strcmp(input_cmd,"6")!=0){
+		if( (strcmp(input_cmd,"1")==0 || strcmp(input_cmd,"2")==0  || strcmp(input_cmd,"3")==0  || strcmp(input_cmd,"4")==0)){
 		if(recv(socket_fd,&client_data,sizeof(client_data_t), 0)<0){
 			perror("Error in receiving structure for sensor. Try again!!");
 		}

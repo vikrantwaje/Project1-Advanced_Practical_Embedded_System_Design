@@ -44,7 +44,7 @@ void led_init(uint8_t gpio_pin[]){
 	FILE *IO_direction = NULL;
 	
 	export_file = fopen("/sys/class/gpio/export","w");	//go to export directory
-	fwrite(gpio_pin,1,sizeof(gpio_pin),export_file);
+	fwrite(gpio_pin,1,sizeof(*gpio_pin),export_file);
 	fclose(export_file);
 	
 	if(strcmp(gpio_pin,"49")==0){

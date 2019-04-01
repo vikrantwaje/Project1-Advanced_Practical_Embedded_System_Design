@@ -445,7 +445,7 @@ void *logger_thread( void* arg){
 
 
 
-			log_file = fopen("log.txt","a+");
+			log_file = fopen(arg,"a+");
 			if(strcmp(log_temp_data.source_ID,"BIST SUCCESS")==0 ||strcmp(log_temp_data.source_ID,"TEMPSENSOR_REMOVED")==0 ||strcmp(log_temp_data.source_ID,"LIGHTSENSOR_REMOVED")==0 || \
 			strcmp(log_temp_data.source_ID,"LIGHT_TASK ALIVE")==0 ||strcmp(log_temp_data.source_ID,"TEMP_TASK ALIVE")==0 ||strcmp(log_temp_data.source_ID,"LOGGER_TASK ALIVE")==0 || \
 			strcmp(log_temp_data.source_ID,"TMP_SWING_INTERRUPT")==0){

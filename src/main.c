@@ -42,7 +42,7 @@ log_t log_main_data_src;
  *
  * @return null
  ********************************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
 	int ret_status;
 	char last_state = '0';
@@ -59,13 +59,18 @@ int main(int argc, char *argv[])
 	if(ret_status ==1){
 	printf("Error in log file");
 	}
-
+	if(remove(argv[1])==0){
+	printf("Deleting the contenyt of old file");
+	}
+	else{
+	printf("File did not exist previously in system");
+	}
 	open_message_queue_server(&mqdes_server, &attribute_server);
 	open_message_queue_logger(&mqdes_logger,&attribute_logger);
 	open_message_queue_heartbeat(&mqdes_heartbeat,&attribute_heartbeat);
 
 
-	built_in_self_test();
+	built_in_self_test(argv[1]);
 	create_log_timer();
 	create_heartbeat_timer();
  	create_heartbeat_recovery_timer();

@@ -33,7 +33,7 @@ pthread_mutex_t logger_queue_mutex;
 /***************************************************************************************
  *				FUNCTION DEFINITION
  ***********************************************************************************************/
-void built_in_self_test(){
+void built_in_self_test(char *argv){
 	double return_data = 0.0;
 	sensor_status_t sensor_stat;	
 	uint8_t sensor_data = 0;
@@ -54,11 +54,14 @@ void built_in_self_test(){
 	else{
 
 		/* Socket thread creation*/
-		
+
 		// Check whether temperature sensor is working properly
 
 		ret_status = write_thigh(THIGH_VAL);
 		if(ret_status!= WRITE_REG_SUCCESS){
+	
+			led_on(RED_LED);
+
 			printf("\n\rTemperature sensor initialisation failed. Failed to write  Thigh register");
 			flag_temp = 1;
 		}
@@ -115,6 +118,8 @@ void built_in_self_test(){
 
 		ret_status = read_temp_conversion_rate(data);
 		if((*(data) & CONVERSION_RATE_MASK)!=CONVERSION_RATE_4 && ret_status!=READ_REG_SUCCESS){
+		
+
 			printf("\n\rTemperature sensor initialisation failed. Incorrect conversion rate bit value data =%x",*data);
 			flag_temp = 1;
 		}		
@@ -122,21 +127,27 @@ void built_in_self_test(){
 
 		ret_status = read_temp_sensor_resolution(data);
 		if((*(data) & RESOLUTION_MASK)!=SENSOR_RESOLUTION_12_BIT && ret_status!=READ_REG_SUCCESS){
+		
+
 			printf("\n\rTemperature sensor initialisation failed. Incorrect sensor resolution bit value data =%x",*data);
 			flag_temp =1;
 		}		
 
 
-		
+
 
 		// Check whether light sensor is working properly
 
 		sensor_stat=light_sensor_power_on();
 		if(sensor_stat != WRITE_REG_SUCCESS){
+		
+			led_on("YELLOW");
+
 			printf("\n\rLight sensor initialisation failed");
 			flag_light =1;
+
 		}
-	
+
 
 		sensor_stat =read_identification_reg(data);	
 		if(*data != IDENTIFICATION_MASK && sensor_stat!=READ_REG_SUCCESS){
@@ -155,22 +166,21 @@ void built_in_self_test(){
 			printf("\n\rLight sensor initialisation failed. Incorrect integration rate bit  data =%x",*data);
 			flag_light =1;
 		}		
-	
-		led_on(YELLOW_LED);
+
 
 		ret_status = set_gain(HIGH_GAIN);
 		if(ret_status!= WRITE_REG_SUCCESS){
 			printf("\n\rLight sensor initialisation failed. Failed to write gain bits");
 			flag_light =1;
 		}
-	
+
 
 		ret_status = get_gain(data);
 		if((*(data) & GAIN_MASK)!=HIGH_GAIN && ret_status!=READ_REG_SUCCESS){
 			printf("\n\rLight sensor initialisation failed. Incorrect gain bit  data =%x",*data);
 			flag_light =1;
 		}
-	
+
 
 		ret_status = config_interrupt_ctrl_reg(INTERRUPT_ON);
 		if(ret_status!= WRITE_REG_SUCCESS){
@@ -206,54 +216,55 @@ void built_in_self_test(){
 			printf("\n\rLight sensor initialisation failed. Failed to read Interrupt high threshold,val =%ld",*(data_16));
 			flag_light =1;
 		}
-	
+
 
 		//	printf("\n\rValue = %ld",*(data_16));
 		//Check whether threads have been created successfully or not
-	
-	
 
-			// Notify success/no success to logger
-	
+
+
+		// Notify success/no success to logger
+
 
 		ret_status = pthread_create( &thread1, NULL, socket_thread,0);
 		if( ret_status )
 		{
-			fprintf( stderr, "socket_thread not created, Error Code: %d\n", ret_status);
+			printf(  "socket_thread not created, Error Code: %d\n", ret_status);
 			flag_thread =1;
 		}
 
-			/*Temperature thread creation*/
+		/*Temperature thread creation*/
 		ret_status = pthread_create( &thread2, NULL, temperature_thread,0);
 		if( ret_status )
 		{
-			fprintf( stderr, "temperature_thread not created, Error Code: %d\n", ret_status);
+			printf(  "temperature_thread not created, Error Code: %d\n", ret_status);
 			flag_thread =1;
 		}
-	
+
 		/*light sensor thread creation*/
 		ret_status = pthread_create( &thread3, NULL, light_sensor_thread,0);
 		if( ret_status )
 		{
-			fprintf( stderr, "light_sensor_thread not created, Error Code: %d\n", ret_status);
+			printf(  "light_sensor_thread not created, Error Code: %d\n", ret_status);
 			flag_thread =1;
 		}
 
 
 		/*logger thread creation*/
-		ret_status = pthread_create( &thread4, NULL, logger_thread,0);
+		ret_status = pthread_create( &thread4, NULL, logger_thread,argv);
 
 		if( ret_status )
 		{
-			fprintf( stderr, "logger_thread not created, Error Code: %d\n", ret_status);
+			printf(  "logger_thread not created, Error Code: %d\n", ret_status);
 			flag_thread =1;
 		}
-	
 
-	
-		
+
+
+
 
 		if(flag_thread == 1){
+			led_on(RED_LED);
 			pthread_mutex_lock(&logger_queue_mutex);
 
 			log_light_data_src.timestamp = record_time();
@@ -271,6 +282,7 @@ void built_in_self_test(){
 		}
 
 		if(flag_temp == 1){
+			led_on(RED_LED);
 			pthread_mutex_lock(&logger_queue_mutex);
 
 			log_temp_data_src.timestamp = record_time();
@@ -287,6 +299,7 @@ void built_in_self_test(){
 
 		}
 		if(flag_light == 1){
+			led_on(RED_LED);
 			pthread_mutex_lock(&logger_queue_mutex);
 
 			log_light_data_src.timestamp = record_time();
@@ -303,20 +316,20 @@ void built_in_self_test(){
 
 		}
 
-	else{
-		led_on(BLUE_LED);
-		pthread_mutex_lock(&logger_queue_mutex);
-		log_light_data_src.timestamp = record_time();
-		log_light_data_src.log_level = 4;
-		log_light_data_src.sensor_data = 0;
-		strcpy(log_light_data_src.source_ID,"BIST SUCCESS");
+		else{
+			led_on(BLUE_LED);
+			pthread_mutex_lock(&logger_queue_mutex);
+			log_light_data_src.timestamp = record_time();
+			log_light_data_src.log_level = 4;
+			log_light_data_src.sensor_data = 0;
+			strcpy(log_light_data_src.source_ID,"BIST SUCCESS");
 
-		if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
-			perror("BIST INITIALISATION FAILED");
-		}
-		pthread_mutex_unlock(&logger_queue_mutex);
+			if(mq_send(mqdes_logger,(char *)&log_light_data_src,sizeof(log_t),0)==-1){
+				perror("BIST INITIALISATION FAILED");
+			}
+			pthread_mutex_unlock(&logger_queue_mutex);
 
 
-}	
-}
+		}	
+	}
 }
