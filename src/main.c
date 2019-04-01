@@ -42,7 +42,7 @@ log_t log_main_data_src;
  *
  * @return null
  ********************************************************************************************/
-int main()
+int main(int argc, char *argv[])
 {
 	int ret_status;
 	char last_state = '0';
@@ -160,7 +160,7 @@ int main()
 	if(ret_status){
 		fprintf( stderr, "logger thread not joined successfully, Error Code: %d\n", ret_status);
 	}
-	printf("Main Thread Exited Successfully \n");
+	printf("\n\rMain Thread Exited Successfully \n");
 
 	/*close_message_queue_server(&mqdes_server);
 	close_message_queue_logger(&mqdes_logger);

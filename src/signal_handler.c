@@ -35,7 +35,7 @@ bool system_shutdown_main_flag;
  *********************************************************************************************/
 void system_shutdown_handler(int num){
 	if(num == SIGINT){
-	printf("CTRL +C triggered");
+	printf("\n\rSystem shutdown activated. Cleaning up the resources............");
 	system_shutdown_flag = 1;
 	system_shutdown_main_flag =1;
 }

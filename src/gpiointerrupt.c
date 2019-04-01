@@ -39,11 +39,11 @@ char IRQ_handler(void)
 	int ret = 0;
 
 	ret = poll( filedes , 1, 10);
-	printf("Ret %d",ret);
+//	printf("Ret %d",ret);
 	ret = read(file_gpio, val, sizeof(val));
 	if( ret > 0)
 	{
-		printf(" Value = %c\n", val[0]);
+		//printf(" Value = %c\n", val[0]);
 		lseek(file_gpio, 0 , SEEK_SET);
 	}
 
@@ -56,7 +56,7 @@ char IRQ_handler(void)
 		lseek(file_gpio,0,SEEK_SET);
 	}*/		
 	
-	printf("returning = %c", val[0]);
+//	printf("returning = %c", val[0]);
 	return val[0];
 	
 }
