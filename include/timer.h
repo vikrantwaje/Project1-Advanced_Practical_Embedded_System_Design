@@ -23,6 +23,7 @@
 #include<stdbool.h>
 #include"logger.h"
 #include"heartbeat.h"
+#include"signal_handler.h"
 /****************************************************************************************
 *				     MACROS AND ENUMS
 *****************************************************************************************/
@@ -39,9 +40,14 @@ extern int heartbeat_timer_flag;
 timer_t log_timer_id;
 //Heartbeat timer id
 timer_t heartbeat_timer_id;
+timer_t heartbeat_recovery_timer_id;
 //timespec struct for giving interval values
 struct itimerspec timer_setting;
 struct sigevent signal_specification;
+
+extern bool logger_heartbeat_indicator;
+extern bool light_heartbeat_indicator ;
+extern bool temp_heartbeat_indicator ;
 /***************************************************************************************
 *				FUNCTION PROTOTYPE
 *****************************************************************************************/
@@ -92,5 +98,27 @@ bool create_heartbeat_timer();
  * @return double: timestamp value
  *********************************************************************************************/
 double record_time();
+/***********************************************************************************************
+ * @brief heartbeat recovery timer handler
+ *
+ * Handler that executes to check for heartbeat recovery
+ * @param num
+ *
+ * @return null
+ *********************************************************************************************/
+void heartbeat_recovery_timer_handler(int num);
+	
+
+//	printf("\n\rHi heartbeat");
+
+/***********************************************************************************************
+ * @brief Create heartbeat recovery timer
+ *
+ * Responsible for recovery of system
+ * @param null
+ *
+ * @return bool: Indicates whether intiialisation was successfull or not
+ *********************************************************************************************/
+bool create_heartbeat_recovery_timer();
 
 #endif //TIMER_H_

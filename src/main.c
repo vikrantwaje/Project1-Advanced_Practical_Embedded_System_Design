@@ -29,6 +29,10 @@ bool system_shutdown_main_flag;
 int socket_fd;
 pthread_mutex_t logger_queue_mutex;
 log_t log_main_data_src;
+ bool logger_heartbeat_indicator;
+ bool light_heartbeat_indicator ;
+ bool temp_heartbeat_indicator ;
+
 /*******************************************************************************************
  * @brief Main function
  *
@@ -64,8 +68,9 @@ int main()
 	built_in_self_test();
 	create_log_timer();
 	create_heartbeat_timer();
-
-
+ 	create_heartbeat_recovery_timer();
+	system_shutdown_main_flag =0;
+	system_shutdown_flag =0;
 	while(1){
 
 
@@ -88,6 +93,15 @@ int main()
 		}
 		else{
 			printf("\n\r%s,[%lf]",heartbeat_temp_data.source_ID,heartbeat_temp_data.sensor_data);
+				if(strcmp(heartbeat_temp_data.source_ID,"TEMP_TASK ALIVE")==0){
+					temp_heartbeat_indicator = 1;
+				}
+				if(strcmp(heartbeat_temp_data.source_ID,"LIGHT_TASK ALIVE")==0){
+					light_heartbeat_indicator = 1;
+				}
+				if(strcmp(heartbeat_temp_data.source_ID,"LOGGER_TASK ALIVE")==0){
+					logger_heartbeat_indicator = 1;
+				}
 				pthread_mutex_lock(&logger_queue_mutex);
 				strcpy(log_main_data_src.source_ID,heartbeat_temp_data.source_ID);
 				log_main_data_src.timestamp = record_time();

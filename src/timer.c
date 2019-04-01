@@ -22,6 +22,11 @@
 int log_timer_flag;
 logger_flag_t logger_flag;
 heartbeat_flag_t heartbeat_flag;
+bool logger_heartbeat_indicator;
+bool light_heartbeat_indicator ;
+bool temp_heartbeat_indicator ;
+bool system_shutdown_flag;
+bool system_shutdown_main_flag;
 /***************************************************************************************
 *				FUNCTION DEFINITION
 *****************************************************************************************/
@@ -57,6 +62,7 @@ void heartbeat_timer_handler(int num){
 
 //	printf("\n\rHi heartbeat");
 }
+
 /***********************************************************************************************
  * @brief Create log timer
  *
@@ -98,6 +104,51 @@ bool create_heartbeat_timer(){
 	timer_setting.it_interval.tv_sec =3 ;
 	timer_setting.it_interval.tv_nsec = 0;
 	timer_settime(heartbeat_timer_id,0,&timer_setting,NULL);
+	return 0;
+}
+
+/***********************************************************************************************
+ * @brief heartbeat recovery timer handler
+ *
+ * Handler that executes to check for heartbeat recovery
+ * @param num
+ *
+ * @return null
+ *********************************************************************************************/
+void heartbeat_recovery_timer_handler(int num){
+	if(logger_heartbeat_indicator!=1 || light_heartbeat_indicator!=1 || temp_heartbeat_indicator!=1){
+			printf("\n\rHeartbeat recovery sequence initiated");
+			system_shutdown_flag =1;
+			system_shutdown_main_flag =1;
+		}
+	else{
+	logger_heartbeat_indicator = 0;
+	light_heartbeat_indicator = 0;
+	temp_heartbeat_indicator =0;
+	}
+	
+
+//	printf("\n\rHi heartbeat");
+}
+/***********************************************************************************************
+ * @brief Create heartbeat recovery timer
+ *
+ * Responsible for recovery of system
+ * @param null
+ *
+ * @return bool: Indicates whether intiialisation was successfull or not
+ *********************************************************************************************/
+bool create_heartbeat_recovery_timer(){
+
+	signal_specification.sigev_notify = SIGEV_THREAD;
+	signal_specification.sigev_notify_function = &heartbeat_recovery_timer_handler;
+	signal_specification.sigev_value.sival_ptr = "Heartbeat Recovery timer";
+	timer_create(CLOCK_REALTIME,&signal_specification,&heartbeat_recovery_timer_id);
+	timer_setting.it_value.tv_sec =7;
+	timer_setting.it_value.tv_nsec = 0;
+	timer_setting.it_interval.tv_sec =15 ;
+	timer_setting.it_interval.tv_nsec = 0;
+	timer_settime(heartbeat_recovery_timer_id,0,&timer_setting,NULL);
 	return 0;
 }
 /***********************************************************************************************
